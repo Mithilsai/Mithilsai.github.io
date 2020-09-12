@@ -4,6 +4,7 @@
 [![ForTheBadge Uses-css](http://ForTheBadge.com/images/badges/uses-css.svg)](http://ForTheBadge.com)
 [![ForTheBadge Uses-js](http://ForTheBadge.com/images/badges/uses-js.svg)](http://ForTheBadge.com)
 [![forthebadge](https://forthebadge.com/images/badges/for-you.svg)](https://forthebadge.com)
+![pic from Mithil](https://github.com/Mithilsai/Mithilsai.github.io/blob/master/portfolio.jpg?raw=true)
 
 ## Built with
 
