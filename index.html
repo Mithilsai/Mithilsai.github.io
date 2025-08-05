@@ -3,7 +3,7 @@
 
 <head>
  <meta charset="utf-8">
- <meta content="width=device-width, initial-scale=1.0" name="viewport">
+ <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
 
  <title>Portfolio Website - Mithilsai</title>
  <link rel="icon" href="assets/img/logo.png">
@@ -15,29 +15,354 @@
  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
  <!-- Google Fonts -->
- <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+ <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i|Barlow+Condensed:500,800" rel="stylesheet">
+ <link href='https://fonts.googleapis.com/css?family=Monda:400,700' rel='stylesheet' type='text/css'>
 
  <!-- Vendor CSS Files -->
  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
  <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
- <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
- <link href="assets/vendor/remixicon/remixicon.css" rel="stylesheet">
- <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
 
  <!-- Template Main CSS File -->
  <link href="assets/css/style.css" rel="stylesheet">
+
+ <!-- Clock Styles -->
+ <style>
+   body {
+     background-color: #111;
+   }
+
+       #clock-container {
+      position: fixed;
+      top: 200px;
+      right: 100px;
+      width: 660px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.5s ease;
+    }
+
+    /* Clock visibility and blur effects */
+    #clock-container.blurred {
+      filter: blur(5px) !important;
+      opacity: 0.3 !important;
+      pointer-events: none !important;
+    }
+
+    #clock-container.hidden {
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+
+   .clock-row {
+     width: 100%; 
+     display: flex;
+     flex-direction: row;
+   }
+
+   .clock-letter {
+     width: 60px;
+     height: 60px;
+     display: block;
+     line-height: 60px;
+     text-align: center;
+     color: #333;
+     font-family: 'Monda', Arial, sans-serif;
+     font-weight: 400;
+     font-size: 20px;
+   }
+
+   .active {
+     color: #fff;
+     font-weight: 700;
+     text-shadow: 0 0 12px #FFF;
+   }
+
+   /* Signature styling - subtle but discoverable */
+   .clock-letter[class*="signature-"] {
+     color: #444;
+     font-weight: 500;
+     position: relative;
+   }
+
+   .clock-letter[class*="signature-"].active {
+     color: #fff;
+     font-weight: 700;
+     text-shadow: 0 0 12px #FFF, 0 0 20px rgba(255, 255, 255, 0.3);
+   }
+
+   /* Special glow effect for signature letters when active */
+   .clock-letter[class*="signature-"].active::after {
+     content: '';
+     position: absolute;
+     top: 0;
+     left: 0;
+     right: 0;
+     bottom: 0;
+     border: 1px solid rgba(255, 255, 255, 0.2);
+     border-radius: 2px;
+     pointer-events: none;
+   }
+
+   /* Signature reveal effect */
+   .clock-letter[class*="signature-"].signature-reveal {
+     color: #fff !important;
+     font-weight: 700 !important;
+     text-shadow: 0 0 15px #FFF, 0 0 25px #FFF, 0 0 35px #FFF !important;
+     animation: signatureGlow 3s ease-in-out;
+   }
+
+   /* Signature pulse effect */
+   .clock-letter[class*="signature-"].signature-pulse {
+     animation: signaturePulse 1s ease-in-out;
+   }
+
+   @keyframes signatureGlow {
+     0%, 100% { 
+       text-shadow: 0 0 15px #FFF, 0 0 25px #FFF, 0 0 35px #FFF;
+       transform: scale(1);
+     }
+     50% { 
+       text-shadow: 0 0 20px #FFF, 0 0 30px #FFF, 0 0 40px #FFF, 0 0 50px #FFF;
+       transform: scale(1.05);
+     }
+   }
+
+   @keyframes signaturePulse {
+     0%, 100% { 
+       opacity: 1;
+       transform: scale(1);
+     }
+     50% { 
+       opacity: 0.8;
+       transform: scale(0.98);
+     }
+   }
+
+   /* Birthday celebration effect - only active on August 1st */
+   .clock-letter[class*="signature-"].birthday-celebration {
+     color: #fff !important;
+     font-weight: 700 !important;
+     text-shadow: 0 0 15px #FFF, 0 0 25px #FF69B4, 0 0 35px #FF1493 !important;
+     animation: birthdayGlow 2s ease-in-out infinite;
+     background: linear-gradient(45deg, #FF69B4, #FF1493, #FF69B4);
+     background-size: 200% 200%;
+     animation: birthdayGlow 2s ease-in-out infinite, birthdayGradient 3s ease-in-out infinite;
+   }
+
+   @keyframes birthdayGlow {
+     0%, 100% { 
+       text-shadow: 0 0 15px #FFF, 0 0 25px #FF69B4, 0 0 35px #FF1493;
+       transform: scale(1);
+     }
+     25% { 
+       text-shadow: 0 0 20px #FFF, 0 0 30px #FF69B4, 0 0 40px #FF1493, 0 0 50px #FF69B4;
+       transform: scale(1.1);
+     }
+     50% { 
+       text-shadow: 0 0 25px #FFF, 0 0 35px #FF1493, 0 0 45px #FF69B4, 0 0 55px #FF1493;
+       transform: scale(1.05);
+     }
+     75% { 
+       text-shadow: 0 0 20px #FFF, 0 0 30px #FF69B4, 0 0 40px #FF1493, 0 0 50px #FF69B4;
+       transform: scale(1.1);
+     }
+   }
+
+   @keyframes birthdayGradient {
+     0%, 100% { 
+       background-position: 0% 50%;
+     }
+     50% { 
+       background-position: 100% 50%;
+     }
+   }
+
+       /* Responsive adjustments for smaller screens */
+    @media (max-width: 1200px) {
+      #clock-container {
+        width: 440px;
+        right: 60px;
+        top: 150px;
+      }
+      
+      .clock-letter {
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+        font-size: 14px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      #clock-container {
+        display: none !important;
+      }
+    }
+
+   /* Ensure content sections have proper contrast on dark background */
+   #header, #about, #resume, #services, #contact {
+     background-color: rgba(0, 0, 0, 0.8);
+     color: #fff;
+   }
+
+   .section-title h2 {
+     color: #fff;
+   }
+
+   .section-title p {
+     color: #ccc;
+   }
+ </style>
 </head>
 
 <body>
-  <!-- Spinner HTML -->
-  <div class="spinner-box" id="spinner">
-    <div class="blue-orbit leo"></div>
-    <div class="green-orbit leo"></div>
-    <div class="red-orbit leo"></div>
-    <div class="white-orbit w1 leo"></div>
-    <div class="white-orbit w2 leo"></div>
-    <div class="white-orbit w3 leo"></div>
+  <!-- Clock Container -->
+  <div id="clock-container">
+    <div class="clock-row">
+      <div class="clock-letter it active">I</div>
+      <div class="clock-letter it active" >T</div>
+      <div class="clock-letter">E</div>
+      <div class="clock-letter is active">I</div>
+      <div class="clock-letter is active">S</div>
+      <div class="clock-letter">F</div>
+      <div class="clock-letter a">A</div>
+      <div class="clock-letter signature-m">M</div>
+      <div class="clock-letter signature-i">I</div>
+      <div class="clock-letter signature-t">T</div>
+      <div class="clock-letter signature-h">H</div>
+    </div>
+    <div class="clock-row">
+      <div class="clock-letter">J</div>
+      <div class="clock-letter quarter">Q</div>
+      <div class="clock-letter quarter">U</div>
+      <div class="clock-letter quarter">A</div>
+      <div class="clock-letter quarter">R</div>
+      <div class="clock-letter quarter">T</div>
+      <div class="clock-letter quarter">E</div>
+      <div class="clock-letter quarter">R</div>
+      <div class="clock-letter">C</div>
+      <div class="clock-letter signature-i2">I</div>
+      <div class="clock-letter signature-l">L</div>
+    </div>
+    <div class="clock-row">
+      <div class="clock-letter twenty">T</div>
+      <div class="clock-letter twenty">W</div>
+      <div class="clock-letter twenty">E</div>
+      <div class="clock-letter twenty">N</div>
+      <div class="clock-letter twenty">T</div>
+      <div class="clock-letter twenty">Y</div>
+      <div class="clock-letter">X</div>
+      <div class="clock-letter five">F</div>
+      <div class="clock-letter five">I</div>
+      <div class="clock-letter five">V</div>
+      <div class="clock-letter five">E</div>
+    </div>
+    <div class="clock-row">
+      <div class="clock-letter half">H</div>
+      <div class="clock-letter half">A</div>
+      <div class="clock-letter half">L</div>
+      <div class="clock-letter half">F</div>
+      <div class="clock-letter">C</div>
+      <div class="clock-letter ten">T</div>
+      <div class="clock-letter ten">E</div>
+      <div class="clock-letter ten">N</div>
+      <div class="clock-letter">G</div>
+      <div class="clock-letter to">T</div>
+      <div class="clock-letter to">O</div>
+    </div>
+    <div class="clock-row">
+      <div class="clock-letter past">P</div>
+      <div class="clock-letter past">A</div>
+      <div class="clock-letter past">S</div>
+      <div class="clock-letter past">T</div>
+      <div class="clock-letter">B</div>
+      <div class="clock-letter 7">S</div>
+      <div class="clock-letter 7">E</div>
+      <div class="clock-letter 7">V</div>
+      <div class="clock-letter 7">E</div>
+      <div class="clock-letter 7">N</div>
+      <div class="clock-letter signature-s">S</div>
+    </div>
+    <div class="clock-row">
+      <div class="clock-letter 1">O</div>
+      <div class="clock-letter 1">N</div>
+      <div class="clock-letter 1">E</div>
+      <div class="clock-letter 2">T</div>
+      <div class="clock-letter 2">W</div>
+      <div class="clock-letter 2">O</div>
+      <div class="clock-letter 3">T</div>
+      <div class="clock-letter 3">H</div>
+      <div class="clock-letter 3">R</div>
+      <div class="clock-letter 3">E</div>
+      <div class="clock-letter 3">E</div>
+    </div>
+    <div class="clock-row">
+      <div class="clock-letter 4">F</div>
+      <div class="clock-letter 4">O</div>
+      <div class="clock-letter 4">U</div>
+      <div class="clock-letter 4">R</div>
+      <div class="clock-letter 5">F</div>
+      <div class="clock-letter 5">I</div>
+      <div class="clock-letter 5">V</div>
+      <div class="clock-letter 5">E</div>
+      <div class="clock-letter 6">S</div>
+      <div class="clock-letter 6">I</div>
+      <div class="clock-letter 6">X</div>
+      <div class="clock-letter signature-a">A</div>
+    </div>
+    <div class="clock-row">
+      <div class="clock-letter 9">N</div>
+      <div class="clock-letter 9">I</div>
+      <div class="clock-letter 9">N</div>
+      <div class="clock-letter 9">E</div>
+      <div class="clock-letter">K</div>
+      <div class="clock-letter 12">T</div>
+      <div class="clock-letter 12">W</div>
+      <div class="clock-letter 12">E</div>
+      <div class="clock-letter 12">L</div>
+      <div class="clock-letter 12">V</div>
+      <div class="clock-letter 12">E</div>
+    </div>
+    <div class="clock-row">
+      <div class="clock-letter 8">E</div>
+      <div class="clock-letter 8">I</div>
+      <div class="clock-letter 8">G</div>
+      <div class="clock-letter 8">H</div>
+      <div class="clock-letter 8">T</div>
+      <div class="clock-letter 11">E</div>
+      <div class="clock-letter 11">L</div>
+      <div class="clock-letter 11">E</div>
+      <div class="clock-letter 11">V</div>
+      <div class="clock-letter 11">E</div>
+      <div class="clock-letter 11">N</div>
+    </div>
+    <div class="clock-row">
+      <div class="clock-letter 10">T</div>
+      <div class="clock-letter 10">E</div>
+      <div class="clock-letter 10">N</div>
+      <div class="clock-letter signature-j">J</div>
+      <div class="clock-letter signature-a2">A</div>
+      <div class="clock-letter oclock">O</div>
+      <div class="clock-letter oclock">C</div>
+      <div class="clock-letter oclock">L</div>
+      <div class="clock-letter oclock">O</div>
+      <div class="clock-letter oclock">C</div>
+      <div class="clock-letter oclock">K</div>
+    </div>
+  </div>
+
+  <!-- MI Folder Loader -->
+  <div class="mi-loader" id="miLoader">
+    <div class="wrapper run-animation" id="animate">
+      <div class="logo">
+        <span class="marvel">M</span>
+        <span class="studios">S</span>
+      </div>
+    </div>
+    <div class="images"></div>
   </div>
 
  <!-- ======= Header ======= -->
@@ -85,7 +410,7 @@
        <div class="col-lg-8 pt-4 pt-lg-0 content" data-aos="fade-left">
          <h3>Computer Technology Graduate</h3>
          <p class="fst-italic">
-          A dynamic and driven graduate of M.S. Computer Technology from Eastern Illinois University with 2+ years of working proficiency. Experienced in cutting‐ edge technologies including Python, Angular, React, Machine Learning, and Cloud Computing. Demonstrated expertise in data analytics, processing over 10 GB of data at KPMG and achieving 88% predictive model accuracy at Quantium through advanced techniques like feature engineering. Collaborated cross‐functionally to deliver a skin disease classification model with 92% accuracy using deep learning. Published 1 IEEE conference paper and 2 arXiv review. Recognized strengths include problem‐solving, time management, and a commitment to excellence evidenced by personal projects impacting over 1,000 users and reducing manual efforts by up to 40%.
+          A passionate software engineer with an M.S. in Computer Technology from Eastern Illinois University, specializing in machine learning, full-stack development, and cloud computing. I've delivered impactful solutions including a 92% accurate skin disease classification model and processed 10+ GB of data for enterprise analytics, consistently achieving measurable business outcomes.
          </p>
        </div>
      </div>
@@ -144,24 +469,54 @@
 
        <div class="col-lg-6">
 
-         <div class="progress">
-           <span class="skill">Python <i class="val">100%</i></span>
-           <div class="progress-bar-wrap">
-             <div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+         <div class="skill-item" data-skill="Python" data-level="95">
+           <div class="skill-header">
+             <i class="bi bi-code-slash"></i>
+             <span class="skill-name">Python</span>
+             <span class="skill-level">Expert</span>
+           </div>
+           <div class="skill-progress">
+             <div class="progress-bar-wrap">
+               <div class="progress-bar" role="progressbar" aria-valuenow="95" aria-valuemin="0" aria-valuemax="100"></div>
+             </div>
+             <span class="skill-percentage">95%</span>
+           </div>
+           <div class="skill-details">
+             <p>Advanced Python development with expertise in data science, web development, and automation. Proficient in frameworks like Django, Flask, and FastAPI.</p>
            </div>
          </div>
 
-         <div class="progress">
-           <span class="skill">Angular <i class="val">90%</i></span>
-           <div class="progress-bar-wrap">
-             <div class="progress-bar" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
+         <div class="skill-item" data-skill="Angular" data-level="90">
+           <div class="skill-header">
+             <i class="bi bi-angular"></i>
+             <span class="skill-name">Angular</span>
+             <span class="skill-level">Advanced</span>
+           </div>
+           <div class="skill-progress">
+             <div class="progress-bar-wrap">
+               <div class="progress-bar" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
+             </div>
+             <span class="skill-percentage">90%</span>
+           </div>
+           <div class="skill-details">
+             <p>Full-stack Angular development with TypeScript, RxJS, and Angular Material. Experience with Angular 12+ and modern development practices.</p>
            </div>
          </div>
 
-         <div class="progress">
-           <span class="skill">React <i class="val">90%</i></span>
-           <div class="progress-bar-wrap">
-             <div class="progress-bar" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
+         <div class="skill-item" data-skill="React" data-level="90">
+           <div class="skill-header">
+             <i class="bi bi-react"></i>
+             <span class="skill-name">React</span>
+             <span class="skill-level">Advanced</span>
+           </div>
+           <div class="skill-progress">
+             <div class="progress-bar-wrap">
+               <div class="progress-bar" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
+             </div>
+             <span class="skill-percentage">90%</span>
+           </div>
+           <div class="skill-details">
+             <p>Modern React development with hooks, context API, and functional components. Experience with React Router, Redux, and popular UI libraries.</p>
            </div>
          </div>
 
@@ -169,24 +524,54 @@
 
        <div class="col-lg-6">
 
-         <div class="progress">
-           <span class="skill">Machine Learning <i class="val">95%</i></span>
-           <div class="progress-bar-wrap">
-             <div class="progress-bar" role="progressbar" aria-valuenow="95" aria-valuemin="0" aria-valuemax="100"></div>
+         <div class="skill-item" data-skill="Machine Learning" data-level="90">
+           <div class="skill-header">
+             <i class="bi bi-cpu"></i>
+             <span class="skill-name">Machine Learning</span>
+             <span class="skill-level">Expert</span>
+           </div>
+           <div class="skill-progress">
+             <div class="progress-bar-wrap">
+               <div class="progress-bar" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
+             </div>
+             <span class="skill-percentage">90%</span>
+           </div>
+           <div class="skill-details">
+             <p>Deep learning expertise with TensorFlow, PyTorch, and scikit-learn. Experience in computer vision, NLP, and predictive modeling.</p>
            </div>
          </div>
 
-         <div class="progress">
-           <span class="skill">Cloud Computing <i class="val">90%</i></span>
-           <div class="progress-bar-wrap">
-             <div class="progress-bar" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
+         <div class="skill-item" data-skill="Cloud Computing" data-level="90">
+           <div class="skill-header">
+             <i class="bi bi-cloud"></i>
+             <span class="skill-name">Cloud Computing</span>
+             <span class="skill-level">Advanced</span>
+           </div>
+           <div class="skill-progress">
+             <div class="progress-bar-wrap">
+               <div class="progress-bar" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
+             </div>
+             <span class="skill-percentage">90%</span>
+           </div>
+           <div class="skill-details">
+             <p>Cloud platform expertise including AWS, Azure, and Google Cloud. Experience with serverless architecture, containers, and DevOps practices.</p>
            </div>
          </div>
 
-         <div class="progress">
-           <span class="skill">Data Analytics <i class="val">95%</i></span>
-           <div class="progress-bar-wrap">
-             <div class="progress-bar" role="progressbar" aria-valuenow="95" aria-valuemin="0" aria-valuemax="100"></div>
+         <div class="skill-item" data-skill="Data Analytics" data-level="90">
+           <div class="skill-header">
+             <i class="bi bi-graph-up"></i>
+             <span class="skill-name">Data Analytics</span>
+             <span class="skill-level">Expert</span>
+           </div>
+           <div class="skill-progress">
+             <div class="progress-bar-wrap">
+               <div class="progress-bar" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
+             </div>
+             <span class="skill-percentage">90%</span>
+           </div>
+           <div class="skill-details">
+             <p>Advanced data analysis with Python, R, SQL, and visualization tools. Experience with big data processing and business intelligence.</p>
            </div>
          </div>
 
@@ -309,199 +694,374 @@
   </div><!-- End Counts -->
      <div class="row">
        <div class="col-lg-6">
-         <h3 class="resume-title">Summary</h3>
-         <div class="resume-item pb-0">
-           <h4>Mithil Sai Jakka</h4>
-           <p><em>A results-driven and innovative M.S. graduate in Computer Technology from Eastern Illinois University with a strong focus on software development. Proficient in programming languages such as Python, C++, Java, and JavaScript, I bring over two years of professional experience, including internships and my current role as a Software Development Engineer at Healthcare Triangle. I have successfully contributed to designing, developing, and deploying robust software applications, improving system performance and user engagement by up to 30% and 25%, respectively. My expertise spans front-end and back-end development using frameworks like React, Angular, and cloud platforms such as AWS, GCP, and Azure. With a passion for problem-solving and delivering high-quality software solutions, I leverage my diverse technical background to enhance application functionality. I thrive in collaborative environments and am committed to continuous learning and innovation in software engineering.</em></p>
-           <ul>
-             <li>USA</li>
-             <li>(559) 709-8752</li>
-             <li>jakkamithilsai@gmail.com</li>
-           </ul>
-         </div>
+
 
          <h3 class="resume-title">Education</h3>
-         <div class="resume-item">
-           <h4>Master of Science in Computer Technology</h4>
-           <h5>2022 - 2024</h5>
-           <p><em>Eastern Illinois University, Charleston, IL</em></p>
-           <p>CGPA - 4/4</p>
-         </div>
-         <div class="resume-item">
-           <h4>Bachelor of Engineering in Computer Science and Engineering</h4>
-           <h5>2018 - 2022</h5>
-           <p><em>Sathyabama Institute of Science and Technology, Chennai, India</em></p>
-           <p>Graduated with Distinction - 8.74/10</p>
+         <div class="timeline">
+           <div class="timeline-item">
+             <div class="timeline-marker">
+               <i class="bi bi-mortarboard"></i>
+             </div>
+             <div class="timeline-content">
+               <h4>Master of Science in Computer Technology</h4>
+               <h5>2022 - 2024</h5>
+               <p><em>Eastern Illinois University, Charleston, IL</em></p>
+               <p class="achievement">CGPA - 4/4</p>
+             </div>
+           </div>
+           
+           <div class="timeline-item">
+             <div class="timeline-marker">
+               <i class="bi bi-book"></i>
+             </div>
+             <div class="timeline-content">
+               <h4>Bachelor of Engineering in Computer Science and Engineering</h4>
+               <h5>2018 - 2022</h5>
+               <p><em>Sathyabama Institute of Science and Technology, Chennai, India</em></p>
+               <p class="achievement">Graduated with Distinction - 8.74/10</p>
+             </div>
+           </div>
          </div>
          <h3 class="resume-title">Certifications</h3>
-         <div class="resume-item">
-           <h4>ANGULAR CERTIFIED TRAINING</h4>
-           <h5>2021</h5>
-           <p><em>CREDO SYSTEMZ</em></p>
+         <div class="timeline">
+           <div class="timeline-item">
+             <div class="timeline-marker">
+               <i class="bi bi-award"></i>
+             </div>
+             <div class="timeline-content">
+               <h4>Microsoft Certified: Azure Fundamentals</h4>
+               <h5>2023</h5>
+               <p><em>Microsoft</em></p>
+             </div>
+           </div>
+           
+           <div class="timeline-item">
+             <div class="timeline-marker">
+               <i class="bi bi-code-slash"></i>
+             </div>
+             <div class="timeline-content">
+               <h4>ANGULAR CERTIFIED TRAINING</h4>
+               <h5>2021</h5>
+               <p><em>CREDO SYSTEMZ</em></p>
+             </div>
+           </div>
+           
+           <div class="timeline-item">
+             <div class="timeline-marker">
+               <i class="bi bi-cpu"></i>
+             </div>
+             <div class="timeline-content">
+               <h4>Facial Expression Recognition with Keras</h4>
+               <h5>2020</h5>
+               <p><em>Coursera</em></p>
+             </div>
+           </div>
+           
+           <div class="timeline-item">
+             <div class="timeline-marker">
+               <i class="bi bi-cloud"></i>
+             </div>
+             <div class="timeline-content">
+               <h4>Machine Learning with TensorFlow on Google Cloud Platform</h4>
+               <h5>2020</h5>
+               <p><em>Google Cloud Training Online</em></p>
+             </div>
+           </div>
+           
+           <div class="timeline-item">
+             <div class="timeline-marker">
+               <i class="bi bi-palette"></i>
+             </div>
+             <div class="timeline-content">
+               <h4>Paleontology: Ancient Marine Reptiles</h4>
+               <h5>2020</h5>
+               <p><em>University of Alberta</em></p>
+             </div>
+           </div>
+           
+           <div class="timeline-item">
+             <div class="timeline-marker">
+               <i class="bi bi-code-square"></i>
+             </div>
+             <div class="timeline-content">
+               <h4>Python for Everybody</h4>
+               <h5>2020</h5>
+               <p><em>University of Michigan</em></p>
+             </div>
+           </div>
+           
+           <div class="timeline-item">
+             <div class="timeline-marker">
+               <i class="bi bi-graph-up"></i>
+             </div>
+             <div class="timeline-content">
+               <h4>Introduction to Data Science</h4>
+               <h5>2020</h5>
+               <p><em>International Business Machines</em></p>
+             </div>
+           </div>
+           
+           <div class="timeline-item">
+             <div class="timeline-marker">
+               <i class="bi bi-bar-chart"></i>
+             </div>
+             <div class="timeline-content">
+               <h4>Applied Data Science</h4>
+               <h5>2020</h5>
+               <p><em>International Business Machines</em></p>
+             </div>
+           </div>
+           
+           <div class="timeline-item">
+             <div class="timeline-marker">
+               <i class="bi bi-database"></i>
+             </div>
+             <div class="timeline-content">
+               <h4>IBM Data Science</h4>
+               <h5>2020</h5>
+               <p><em>International Business Machines</em></p>
+             </div>
+           </div>
+           
+           <div class="timeline-item">
+             <div class="timeline-marker">
+               <i class="bi bi-cloud-check"></i>
+             </div>
+             <div class="timeline-content">
+               <h4>From Data to Insights with Google Cloud Platform</h4>
+               <h5>2020</h5>
+               <p><em>Google Cloud Training Online</em></p>
+             </div>
+           </div>
+           
+           <div class="timeline-item">
+             <div class="timeline-marker">
+               <i class="bi bi-dna"></i>
+             </div>
+             <div class="timeline-content">
+               <h4>Genomic Technologies</h4>
+               <h5>2020</h5>
+               <p><em>The Johns Hopkins University</em></p>
+             </div>
+           </div>
+           
+           <div class="timeline-item">
+             <div class="timeline-marker">
+               <i class="bi bi-chat-quote"></i>
+             </div>
+             <div class="timeline-content">
+               <h4>Perform Sentiment Analysis with scikit-learn</h4>
+               <h5>2020</h5>
+               <p><em>Coursera</em></p>
+             </div>
+           </div>
+           
+           <div class="timeline-item">
+             <div class="timeline-marker">
+               <i class="bi bi-code"></i>
+             </div>
+             <div class="timeline-content">
+               <h4>Programming with Google Go Specialization</h4>
+               <h5>2020</h5>
+               <p><em>Coursera</em></p>
+             </div>
+           </div>
+           
+           <div class="timeline-item">
+             <div class="timeline-marker">
+               <i class="bi bi-calculator"></i>
+             </div>
+             <div class="timeline-content">
+               <h4>SAS Programming</h4>
+               <h5>2020</h5>
+               <p><em>SAS</em></p>
+             </div>
+           </div>
+           
+           <div class="timeline-item">
+             <div class="timeline-marker">
+               <i class="bi bi-megaphone"></i>
+             </div>
+             <div class="timeline-content">
+               <h4>Digital Marketing</h4>
+               <h5>2019</h5>
+               <p><em>Google</em></p>
+             </div>
+           </div>
+           
+           <div class="timeline-item">
+             <div class="timeline-marker">
+               <i class="bi bi-tree"></i>
+             </div>
+             <div class="timeline-content">
+               <h4>Dino 101: Dinosaur Paleobiology</h4>
+               <h5>2019</h5>
+               <p><em>University of Alberta</em></p>
+             </div>
+           </div>
+           
+           <div class="timeline-item">
+             <div class="timeline-marker">
+               <i class="bi bi-feather"></i>
+             </div>
+             <div class="timeline-content">
+               <h4>Paleontology: Theropod Dinosaurs and the Origin of Birds</h4>
+               <h5>2019</h5>
+               <p><em>University of Alberta</em></p>
+             </div>
+           </div>
          </div>
-         <div class="resume-item">
-           <h4>Facial Expression Recognition with Keras</h4>
-           <h5>2020</h5>
-           <p><em>Coursera</em></p>
-         </div>
-         <div class="resume-item">
-          <h4>Machine Learning with TensorFlow on Google Cloud Platform</h4>
-          <h5>2020</h5>
-          <p><em>Google Cloud Training Online</em></p>
-        </div>
-        <div class="resume-item">
-          <h4>Paleontology: Ancient Marine Reptiles</h4>
-          <h5>2020</h5>
-          <p><em>University of Alberta</em></p>
-        </div>
-        <div class="resume-item">
-          <h4>Python for EverybodyPython for Everybody</h4>
-          <h5>2020</h5>
-          <p><em>University of Michigan</em></p>
-        </div>
-        <div class="resume-item">
-          <h4>Introduction to Data Science</h4>
-          <h5>2020</h5>
-          <p><em>International Business Machines</em></p>
-        </div>
-        <div class="resume-item">
-          <h4>Applied Data Science</h4>
-          <h5>2020</h5>
-          <p><em>International Business Machines</em></p>
-        </div>
-        <div class="resume-item">
-          <h4>IBM Data Science</h4>
-          <h5>2020</h5>
-          <p><em>International Business Machines</em></p>
-        </div>
-        <div class="resume-item">
-          <h4>From Data to Insights with Google Cloud Platform</h4>
-          <h5>2020</h5>
-          <p><em>Google Cloud Training Online</em></p>
-        </div>
-        <div class="resume-item">
-          <h4>Genomic Technologies</h4>
-          <h5>2020</h5>
-          <p><em>The Johns Hopkins University</em></p>
-        </div>
-        <div class="resume-item">
-          <h4>Perform Sentiment Analysis with scikit-learn</h4>
-          <h5>2020</h5>
-          <p><em>Coursera</em></p>
-        </div>
-        <div class="resume-item">
-          <h4>Programming with Google Go Specialization</h4>
-          <h5>2020</h5>
-          <p><em>Coursera</em></p>
-        </div>
-        <div class="resume-item">
-          <h4>Perform Sentiment Analysis with scikit-learn</h4>
-          <h5>2020</h5>
-          <p><em>UC Irvine</em></p>
-        </div>
-        <div class="resume-item">
-          <h4>SAS Programming</h4>
-          <h5>2020</h5>
-          <p><em>SAS</em></p>
-        </div>
-        <div class="resume-item">
-          <h4>Digital Marketing</h4>
-          <h5>2019</h5>
-          <p><em>Google</em></p>
-        </div>
-        <div class="resume-item">
-          <h4>Dino 101: Dinosaur Paleobiology</h4>
-          <h5>2019</h5>
-          <p><em>University of Alberta</em></p>
-        </div>
-        <div class="resume-item">
-          <h4>Paleontology: Theropod Dinosaurs and the Origin of Birds</h4>
-          <h5>2019</h5>
-          <p><em>University of Alberta</em></p>
-        </div>
        </div>
        <div class="col-lg-6">
          <h3 class="resume-title">Professional Experience</h3>
-         <div class="resume-item">
-          <h4>Software Development Engineering Intern</h4>
-          <h5>June 2024 - Present</h5>
-          <p><em>Healthcare Triangle, Inc</em></p>
-          <ul>
-            <li>Design and develop scalable software applications for healthcare data analysis, integrating algorithms to optimize predictive analytics and patient outcomes.</li>
-            <li>Collaborate with cross-functional teams to implement secure, compliant solutions adhering to healthcare regulations and data privacy standards. Write clean, efficient code using Python, JavaScript, and cloud technologies (AWS), enhancing system performance and maintainability.</li>
-            <li>Contribute to the full software development lifecycle, from requirements gathering to deployment, ensuring high-quality deliverables.</li>
-          </ul>
-        </div>
-         <div class="resume-item">
-          <h4>Campus Ambassador</h4>
-          <h5>2021</h5>
-          <p><em>Dell Technologies, India</em></p>
-          <ul>
-            <li>Acquired proficient event management and coding skills while serving as a dynamic campus ambassador, orchestrating a spectrum of events with a strategic emphasis on Dell technologies.</li>
-            <li>Organized and executed 5 successful tech events, reaching over 1,000 students and promoting Dell's cutting-edge solutions.</li>
-          </ul>
-        </div>
-        <div class="resume-item">
-          <h4>Data Analytics Consulting Virtual Intern</h4>
-          <h5>2020</h5>
-          <p><em>KPMG, India</em></p>
-          <ul>
-            <li>Derived insights from raw data by processing it into an organized format, and preparing analytics on the company's sales and focused areas to improve profitability.</li>
-            <li>Utilized Python and Power BI to analyze over 10 GB of data, identifying key trends and opportunities for revenue growth.</li>
-            <li>Presented data‑driven recommendations to senior leadership, resulting in a 7% increase in sales within the first quarter.</li>
-          </ul>
-        </div>
+         <div class="timeline">
+           <div class="timeline-item">
+             <div class="timeline-marker">
+               <i class="bi bi-code-slash"></i>
+             </div>
+             <div class="timeline-content">
+               <h4>Software Development Engineer</h4>
+               <h5>June 2024 - Present</h5>
+               <p><em>Healthcare Triangle, Inc</em></p>
+               <ul>
+                 <li>Developed HL7 message validation system achieving 95% faster processing time and enhanced EHR data access reducing retrieval time by 1.5 hours.</li>
+                 <li>Implemented comprehensive unit testing achieving 92% code coverage and optimized microservice efficiency to 150ms per message processing.</li>
+                 <li>Built robust data validation microservice and collaborated effectively in Agile/Scrum environment for healthcare software solutions.</li>
+               </ul>
+             </div>
+           </div>
+           
+           <div class="timeline-item">
+             <div class="timeline-marker">
+               <i class="bi bi-mortarboard"></i>
+             </div>
+             <div class="timeline-content">
+               <h4>Advanced Software Engineering - Teaching Assistant</h4>
+               <h5>Sept 2023 - April 2024</h5>
+               <p><em>Eastern Illinois University</em></p>
+               <ul>
+                 <li>Supported students in Software Development Life Cycle (SDLC) concepts and elevated project quality achieving 25% increase in unit test coverage.</li>
+                 <li>Reduced code quality violations by 35% and improved team collaboration through effective mentoring and guidance.</li>
+               </ul>
+             </div>
+           </div>
 
-        <div class="resume-item">
-          <h4>Technology Consulting Virtual Intern</h4>
-          <h5>2020</h5>
-          <p><em>Deloitte, India</em></p>
-          <ul>
-            <li>Proactively gained expertise in project management while honing skills in strategic analysis and effective client communication.</li>
-            <li>Collaborated with cross-functional teams to develop and implement cloud-based solutions, reducing infrastructure costs by 20%.</li>
-          </ul>
-        </div>
-         <div class="resume-item">
-           <h4>SDE Intern</h4>
-           <h5>2020</h5>
-           <p><em>Sparks Foundation, India</em></p>
-           <ul>
-             <li>Collaborated on developing their forerunner website's UX and front‑end framework by implementing chores related to data cleaning and processing on big data.</li>
-             <li>Utilized Python and JavaScript to clean and preprocess over 5 million records, improving data quality by 30%.</li>
-           </ul>
+           <div class="timeline-item">
+             <div class="timeline-marker">
+               <i class="bi bi-code-slash"></i>
+             </div>
+             <div class="timeline-content">
+               <h4>Full Stack Web Developer</h4>
+               <h5>January 2023 - July 2023</h5>
+               <p><em>California State University, Fresno</em></p>
+               <ul>
+                 <li>Audited portal UI, crafted Adobe XD wireframes, and built responsive React components, streamlining navigation and winning unanimous stakeholder approval.</li>
+                 <li>Defined task-completion and click-through metrics, embedded analytics in React, and ran A/B tests, cutting user errors by 25% and boosting satisfaction.</li>
+                 <li>Documented component specs, led weekly cross-functional reviews, and orchestrated design-to-development handoffs, delivering every milestone on time with zero major defects.</li>
+               </ul>
+             </div>
+           </div>
+           
+           <div class="timeline-item">
+             <div class="timeline-marker">
+               <i class="bi bi-megaphone"></i>
+             </div>
+             <div class="timeline-content">
+               <h4>Campus Ambassador</h4>
+               <h5>October 2020 - May 2021</h5>
+               <p><em>Dell Technologies, India</em></p>
+               <ul>
+                 <li>Orchestrated and managed over five large-scale tech events, reaching more than 1,000 students across the university.</li>
+                 <li>Coordinated logistics, fostered engagement, and facilitated promotion of Dell's products and solutions including data security, cloud solutions, and AI integration.</li>
+                 <li>Developed marketing, social media management, and public speaking skills while presenting complex technical solutions to diverse audiences.</li>
+               </ul>
+             </div>
+           </div>
+           
+           <div class="timeline-item">
+             <div class="timeline-marker">
+               <i class="bi bi-laptop"></i>
+             </div>
+             <div class="timeline-content">
+               <h4>Software Development Intern</h4>
+               <h5>April 2020 - October 2020</h5>
+               <p><em>Sparks Foundation, India</em></p>
+               <ul>
+                 <li>Optimized back-end API performance by 75% and improved dashboard load time by 60% through efficient code optimization.</li>
+                 <li>Reduced user support tickets by 30% and developed robust unit tests achieving 90%+ code coverage.</li>
+               </ul>
+             </div>
+           </div>
+
+           <div class="timeline-item">
+             <div class="timeline-marker">
+               <i class="bi bi-gear"></i>
+             </div>
+             <div class="timeline-content">
+               <h4>Technology Consulting Virtual Intern</h4>
+               <h5>2020</h5>
+               <p><em>Deloitte, India</em></p>
+               <ul>
+                 <li>Proactively gained expertise in project management while honing skills in strategic analysis and effective client communication.</li>
+                 <li>Collaborated with cross-functional teams to develop and implement cloud-based solutions, reducing infrastructure costs by 20%.</li>
+               </ul>
+             </div>
+           </div>
+           
+
          </div>
          <h3 class="resume-title">Publications</h3>
-         <div class="resume-item">
-           <h4>Categorization of Integumentary System Disorders using Deep Learning</h4>
-           <h5>2022</h5>
-           <p><em>IEEE</em></p>
-           <ul>
-             <li>Developed a sophisticated deep learning model leveraging TensorFlow to effectively classify four distinct types of skin diseases.</li>
-             <li>By utilizing learning techniques, specifically Inception v3, we not only reduced the training duration but also achieved superior accuracy levels.</li>
-             <li>This project not only honed technical skills in HTML, SCSS, JavaScript, Flask, and TensorFlow but also fostered soft skills such as logical thinking, polished presentation abilities, leadership qualities, and effective teamwork.</li>
-           </ul>
+         <div class="timeline">
+           <div class="timeline-item">
+             <div class="timeline-marker">
+               <i class="bi bi-shield-check"></i>
+             </div>
+             <div class="timeline-content">
+               <h4>Unraveling the Equifax Data Breach: Lessons Learned and Strategies for Robust Cybersecurity</h4>
+               <h5>2023</h5>
+               <p><em>arXiv</em></p>
+               <ul>
+                 <li>Conducted an in-depth analysis of the 2017 Equifax data breach, a significant event impacting approximately 147 million individuals. Delving into the root causes, vulnerabilities, occurrences, variants, and related attacks, I focused particularly on the exploited Apache Struts framework vulnerability (CVE‐ 2017‐5638) and its profound implications for data security. </li>
+                 <li>Through meticulous investigation, I elucidated the necessity for proactive measures such as timely patch management, comprehensive vulnerability management, and rigorous employee training to mitigate similar breaches effectively.</li>
+                 <li>By offering best practices and insights gleaned from this analysis, my paper contributes to the broader discourse on cybersecurity, offering actionable strategies for organizations aiming to bolster their security posture in an increasingly digitized landscape.</li>
+               </ul>
+             </div>
+           </div>
+           
+           <div class="timeline-item">
+             <div class="timeline-marker">
+               <i class="bi bi-planet"></i>
+             </div>
+             <div class="timeline-content">
+               <h4>Assessing Exoplanet Habitability through Data‐driven Approaches: A Comprehensive Literature Review</h4>
+               <h5>2023</h5>
+               <p><em>arXiv</em></p>
+               <ul>
+                 <li>Disseminated in Arxiv, critically examined various data‐driven methodologies employed in assessing the habitability of exoplanets.</li>
+                 <li>Through an exhaustive literature review, I synthesized existing knowledge and highlighted trends in the field.</li>
+                 <li>This endeavor enhanced my research skills, deepened my understanding of astrobiology concepts, and contributed to the broader scientific discourse surrounding exoplanet exploration.</li>
+               </ul>
+             </div>
+           </div>
+           
+           <div class="timeline-item">
+             <div class="timeline-marker">
+               <i class="bi bi-heart-pulse"></i>
+             </div>
+             <div class="timeline-content">
+               <h4>Categorization of Integumentary System Disorders using Deep Learning</h4>
+               <h5>2022</h5>
+               <p><em>IEEE</em></p>
+               <ul>
+                 <li>Developed a sophisticated deep learning model leveraging TensorFlow to effectively classify four distinct types of skin diseases.</li>
+                 <li>By utilizing learning techniques, specifically Inception v3, we not only reduced the training duration but also achieved superior accuracy levels.</li>
+                 <li>This project not only honed technical skills in HTML, SCSS, JavaScript, Flask, and TensorFlow but also fostered soft skills such as logical thinking, polished presentation abilities, leadership qualities, and effective teamwork.</li>
+               </ul>
+             </div>
+           </div>
          </div>
 
-         <div class="resume-item">
-          <h4>Assessing Exoplanet Habitability through Data‐driven Approaches: A Comprehensive Literature Review</h4>
-          <h5>2023</h5>
-          <p><em>arXiv</em></p>
-          <ul>
-            <li>Disseminated in Arxiv, critically examined various data‐driven methodologies employed in assessing the habitability of exoplanets.</li>
-            <li>Through an exhaustive literature review, I synthesized existing knowledge and highlighted trends in the field.</li>
-            <li>This endeavor enhanced my research skills, deepened my understanding of astrobiology concepts, and contributed to the broader scientific discourse surrounding exoplanet exploration.</li>
-          </ul>
-        </div>
-        <div class="resume-item">
-          <h4>Unraveling the Equifax Data Breach: Lessons Learned and Strategies for Robust Cybersecurity</h4>
-          <h5>2023</h5>
-          <p><em>arXiv</em></p>
-          <ul>
-            <li>Conducted an in-depth analysis of the 2017 Equifax data breach, a significant event impacting approximately 147 million individuals. Delving into the root causes, vulnerabilities, occurrences, variants, and related attacks, I focused particularly on the exploited Apache Struts framework vulnerability (CVE‐ 2017‐5638) and its profound implications for data security. </li>
-            <li>Through meticulous investigation, I elucidated the necessity for proactive measures such as timely patch management, comprehensive vulnerability management, and rigorous employee training to mitigate similar breaches effectively.</li>
-            <li>By offering best practices and insights gleaned from this analysis, my paper contributes to the broader discourse on cybersecurity, offering actionable strategies for organizations aiming to bolster their security posture in an increasingly digitized landscape.</li>
-          </ul>
-        </div>
+ 
         
        </div>
      </div>
@@ -520,50 +1080,152 @@
 
      <div class="row">
        <div class="col-lg-4 col-md-6 d-flex align-items-stretch">
-         <div class="icon-box">
-           <div class="icon"><i class="bx bx-world"></i></div>
-           <h4><a href="https://react-strom.vercel.app" target="_blank">The React Storm: A Dynamic Weather Application</a></h4>
-           <p>Incorporated multiple APIs, including Open-Meteo and Nominatim, to retrieve real-time weather data and location-based information. Implemented responsive design using React and React Bootstrap to ensure optimal performance on various devices, enhancing user experience. Integrated data visualization libraries like Chart.js and React-Leaflet to display weather trends and interactive maps in an intuitive and visually appealing manner.</p>
+         <div class="project-card">
+           <div class="project-icon">
+             <i class="bx bx-cloud"></i>
+           </div>
+           <div class="project-content">
+             <h4><a href="https://react-strom.vercel.app/" target="_blank">The React Storm: A Dynamic Weather Application</a></h4>
+             <p><strong>Situation:</strong> Users needed a modern, responsive weather application with real-time data access. <strong>Task:</strong> Develop a dynamic weather application using React.js with TypeScript. <strong>Action:</strong> Built responsive React application with real-time weather API integration, implemented TypeScript for type safety, and ensured cross-device compatibility. <strong>Result:</strong> Created a fully functional weather app with optimal performance across all devices and real-time data updates.</p>
+             <div class="project-tech">
+               <span class="tech-badge">React.js</span>
+               <span class="tech-badge">TypeScript</span>
+               <span class="tech-badge">JavaScript</span>
+               <span class="tech-badge">Front-End</span>
+               <span class="tech-badge">APIs</span>
+             </div>
+             <div class="project-links">
+               <a href="https://react-strom.vercel.app/" target="_blank" class="demo-link">Live Demo</a>
+             </div>
+           </div>
+         </div>
+       </div>
+
+       <div class="col-lg-4 col-md-6 d-flex align-items-stretch">
+         <div class="project-card">
+           <div class="project-icon">
+             <i class="bx bx-data"></i>
+           </div>
+           <div class="project-content">
+             <h4><a href="escape.html">Real-time Financial Data Stream Processing Engine</a></h4>
+             <p><strong>Situation:</strong> Financial institutions needed real-time processing of market data streams with high reliability. <strong>Task:</strong> Design and implement a scalable data processing system using software design patterns. <strong>Action:</strong> Built event-driven architecture using Adapter, Factory Method, Singleton, and Observer patterns with robust error handling. <strong>Result:</strong> Achieved 95% faster processing time and enhanced data validation capabilities.</p>
+             <div class="project-tech">
+               <span class="tech-badge">Design Patterns</span>
+               <span class="tech-badge">Data Processing</span>
+               <span class="tech-badge">Event-Driven</span>
+               <span class="tech-badge">Real-time</span>
+             </div>
+             <div class="project-links">
+               <a href="escape.html" target="_blank" class="demo-link">View Project</a>
+             </div>
+           </div>
          </div>
        </div>
 
        <div class="col-lg-4 col-md-6 d-flex align-items-stretch mt-4 mt-md-0">
-         <div class="icon-box">
-           <div class="icon"><i class="bx bx-file"></i></div>
-           <h4><a href="https://mithilsai.github.io/escape.html">Enhancing the Fresno State Digital Landscape: A User Experience Transformation</a></h4>
-           <p>Conducted user research and analyzed data from over 500 participants to identify pain points and opportunities for improvement in the university's digital ecosystem. Developed UI/UX wireframes and prototypes using Adobe XD, incorporating best practices in user‑centered design. Presented re‑design proposals to stakeholders, resulting in the implementation of three major feature enhancements, improving user satisfaction by 25%.</p>
+         <div class="project-card">
+           <div class="project-icon">
+             <i class="bx bx-file"></i>
+           </div>
+           <div class="project-content">
+             <h4><a href="escape.html">Enhancing the Fresno State Digital Landscape: A User Experience Transformation</a></h4>
+             <p><strong>Situation:</strong> University's digital platform had poor user experience affecting 10,000+ students and staff. <strong>Task:</strong> Conduct comprehensive UX research and redesign the digital ecosystem. <strong>Action:</strong> Analyzed data from 500+ participants, created wireframes using Adobe XD, and presented redesign proposals to stakeholders. <strong>Result:</strong> Implemented three major feature enhancements, improving user satisfaction by 25%.</p>
+             <div class="project-tech">
+               <span class="tech-badge">UI/UX</span>
+               <span class="tech-badge">Adobe XD</span>
+               <span class="tech-badge">Research</span>
+               <span class="tech-badge">Prototyping</span>
+             </div>
+             <div class="project-links">
+               <a href="escape.html" target="_blank" class="demo-link">View Project</a>
+             </div>
+           </div>
          </div>
        </div>
 
        <div class="col-lg-4 col-md-6 d-flex align-items-stretch mt-4 mt-lg-0">
-         <div class="icon-box">
-           <div class="icon"><i class="bx bx-tachometer"></i></div>
-           <h4><a href="https://github.com/Mithilsai/Categorization-of-Integumentary-System-Disorders-Using-Deep-Learning" target="_blank">Categorization of Integumentary System Disorders Using Deep Learning</a></h4>
-           <p>Created a deep learning model with TensorFlow to classify four types of skin diseases, leveraging transfer learning (Inception v3) to achieve an accuracy of 92%. Preprocessed and engineered features from medical image data, employing techniques like data augmentation and normalization, increasing the training dataset size by 40%. Collaborated with a cross‑functional team, including bioinformatics and computational biology experts, to ensure clinical relevance and model interpretability.</p>
+         <div class="project-card">
+           <div class="project-icon">
+             <i class="bx bx-tachometer"></i>
+           </div>
+           <div class="project-content">
+             <h4><a href="https://github.com/Mithilsai/Categorization-of-Integumentary-System-Disorders-Using-Deep-Learning" target="_blank">Categorization of Integumentary System Disorders Using Deep Learning</a></h4>
+             <p><strong>Situation:</strong> Medical professionals needed automated skin disease classification to improve diagnostic accuracy and reduce diagnosis time. <strong>Task:</strong> Develop a deep learning model to classify four types of skin diseases from medical images. <strong>Action:</strong> Built TensorFlow model using Inception v3 transfer learning, preprocessed 15,000+ images with data augmentation, and collaborated with bioinformatics experts. <strong>Result:</strong> Achieved 92% classification accuracy and increased training dataset by 40%.</p>
+             <div class="project-tech">
+               <span class="tech-badge">TensorFlow</span>
+               <span class="tech-badge">Deep Learning</span>
+               <span class="tech-badge">Python</span>
+               <span class="tech-badge">Medical AI</span>
+               <span class="tech-badge">Inception v3</span>
+             </div>
+             <div class="project-links">
+               <a href="https://github.com/Mithilsai/Categorization-of-Integumentary-System-Disorders-Using-Deep-Learning" target="_blank" class="github-link">GitHub</a>
+             </div>
+           </div>
          </div>
        </div>
 
        <div class="col-lg-4 col-md-6 d-flex align-items-stretch mt-4">
-         <div class="icon-box">
-           <div class="icon"><i class="bx bx-world"></i></div>
-           <h4><a href="https://mithilsai.github.io/escape.html">Analyzing Stock Market Trends Using R</a></h4>
-           <p>Developed a script in R to fetch historical stock market data from financial APIs like Alpha Vantage and Yahoo Finance, automating the data collection process. Processed and cleaned the raw data, handling over 10 million data points and removing inconsistencies and missing values, improving data quality by 30%. Utilized time series analysis techniques and statistical methods in R to identify patterns and trends in stock prices, accurately predicting price movements with 85% accuracy. Implemented data visualization using ggplot2, creating insightful charts and graphs showcasing stock price movements, trading volume, and volatility. Conducted sentiment analysis on over 5,000 financial news articles using R packages like tidytext, quantifying the overall sentiment and its impact on stock prices.</p>
+         <div class="project-card">
+           <div class="project-icon">
+             <i class="bx bx-trending-up"></i>
+           </div>
+           <div class="project-content">
+             <h4><a href="escape.html">Analyzing Stock Market Trends Using R</a></h4>
+             <p><strong>Situation:</strong> Investors needed automated stock market analysis to identify profitable trading opportunities. <strong>Task:</strong> Develop a comprehensive stock market analysis system using R programming. <strong>Action:</strong> Built automated data collection from financial APIs, processed 10+ million data points, and implemented time series analysis with statistical methods. <strong>Result:</strong> Achieved 85% prediction accuracy and improved data quality by 30%.</p>
+             <div class="project-tech">
+               <span class="tech-badge">R</span>
+               <span class="tech-badge">Data Analysis</span>
+               <span class="tech-badge">Time Series</span>
+               <span class="tech-badge">Financial APIs</span>
+               <span class="tech-badge">Sentiment Analysis</span>
+             </div>
+             <div class="project-links">
+               <a href="escape.html" target="_blank" class="demo-link">View Project</a>
+             </div>
+           </div>
          </div>
        </div>
 
        <div class="col-lg-4 col-md-6 d-flex align-items-stretch mt-4">
-         <div class="icon-box">
-           <div class="icon"><i class="bx bx-slideshow"></i></div>
-           <h4><a href="https://cargobs.github.io/" target="_blank">Elegant Logistics Management System Empowered by Angular 12</a></h4>
-           <p>Incorporated Firebase for secure authentication and data storage, implementing responsive design for optimal performance on all devices. Developed an intuitive logistics management system using Angular 12, reducing manual data entry efforts by 40%.</p>
+         <div class="project-card">
+           <div class="project-icon">
+             <i class="bx bx-slideshow"></i>
+           </div>
+           <div class="project-content">
+             <h4><a href="escape.html">Elegant Logistics Management System Empowered by Angular 12</a></h4>
+             <p><strong>Situation:</strong> Logistics companies struggled with manual data entry and inefficient inventory management processes. <strong>Task:</strong> Develop a modern web application to streamline logistics operations. <strong>Action:</strong> Built Angular 12 application with Firebase authentication, responsive design, and intuitive user interface. <strong>Result:</strong> Reduced manual data entry efforts by 40% and improved operational efficiency.</p>
+             <div class="project-tech">
+               <span class="tech-badge">Angular 12</span>
+               <span class="tech-badge">Firebase</span>
+               <span class="tech-badge">TypeScript</span>
+               <span class="tech-badge">Logistics</span>
+             </div>
+             <div class="project-links">
+               <a href="escape.html" target="_blank" class="demo-link">View Project</a>
+             </div>
+           </div>
          </div>
        </div>
 
        <div class="col-lg-4 col-md-6 d-flex align-items-stretch mt-4">
-         <div class="icon-box">
-           <div class="icon"><i class="bx bx-arch"></i></div>
-           <h4><a href="https://github.com/Mithilsai/Smart-park" target="_blank">The Opulent Slots: Refined Parking System</a></h4>
-           <p>Analyzed data from various resources over the web and derived an optimized solution by collaborating in integrating the Twilio WhatsApp API. Deployed the website with a minimal approach for the user, resulting in a 25% increase in user engagement.</p>
+         <div class="project-card">
+           <div class="project-icon">
+             <i class="bx bx-arch"></i>
+           </div>
+           <div class="project-content">
+             <h4><a href="escape.html">The Opulent Slots: Refined Parking System</a></h4>
+             <p><strong>Situation:</strong> Urban areas faced parking space management challenges with poor user experience and communication. <strong>Task:</strong> Create an intelligent parking system with real-time communication capabilities. <strong>Action:</strong> Integrated Twilio WhatsApp API for notifications, designed minimal user interface, and implemented IoT-based parking detection. <strong>Result:</strong> Increased user engagement by 25% and improved parking space utilization.</p>
+             <div class="project-tech">
+               <span class="tech-badge">Twilio API</span>
+               <span class="tech-badge">WhatsApp</span>
+               <span class="tech-badge">Web Development</span>
+               <span class="tech-badge">IoT</span>
+             </div>
+             <div class="project-links">
+               <a href="escape.html" target="_blank" class="demo-link">View Project</a>
+             </div>
+           </div>
          </div>
        </div>
 
@@ -588,7 +1250,7 @@
       <div class="info-box">
         <i class="bx bx-map"></i>
         <h3>My Address</h3>
-        <p>USA</p>
+        <p>Chicago</p>
       </div>
     </div>
 
@@ -614,7 +1276,7 @@
       <div class="info-box">
         <i class="bx bx-phone-call"></i>
         <h3>Call Me</h3>
-        <p>+1 (559) 709-8752</p>
+        <p>5597098752</p>
       </div>
     </div>
   </div>
@@ -626,14 +1288,244 @@
 <!-- Vendor JS Files -->
 <script src="assets/vendor/purecounter/purecounter_vanilla.js"></script>
 <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
-<script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
-<script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
-<script src="assets/vendor/waypoints/noframework.waypoints.js"></script>
-<script src="assets/vendor/php-email-form/validate.js"></script>
 
 <!-- Template Main JS File -->
 <script src="assets/js/main.js"></script>
+
+<!-- Clock JavaScript -->
+<script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script>
+  $(document).ready(function () {
+    (function (clockJS, $) {
+
+      var currentTime, hour, minute, interval;
+
+      function getTimeValues() {
+        currentTime = new Date();
+        hour = currentTime.getHours() >= 12 ? currentTime.getHours() - 12 : currentTime.getHours();
+        minute = currentTime.getMinutes();
+      }
+
+      function setTime() {
+        updateTime();
+        setTimeout(function () {
+          updateTime();
+          setInterval(function() {
+            updateTime();
+          }, 60000);
+        }, interval * 1000);
+      }
+
+      function updateTime() {
+        getTimeValues();
+
+        // Helper function to get the correct hour class
+        function getHourClass(h) {
+          return h === 0 ? '12' : h.toString();
+        }
+
+        // on the hour
+        if (minute >= 58) {
+          $('.five').removeClass('active');
+          $('.to').removeClass('active');
+          $('.oclock').addClass('active');
+
+          $('.' + getHourClass(hour + 1)).addClass('active');
+        } 
+        // five to
+        else if (minute >= 52) {
+          $('.ten').removeClass('active');
+          $('.five').addClass('active');
+          $('.to').addClass('active');
+
+          $('.' + getHourClass(hour + 1)).addClass('active');
+        }
+        //ten to
+        else if (minute >= 49) {
+          $('.a').removeClass('active');
+          $('.quarter').removeClass('active');
+          $('.ten').addClass('active');
+          $('.to').addClass('active');
+
+          $('.' + getHourClass(hour + 1)).addClass('active');
+        }
+        // quarter to
+        else if (minute >= 43) {
+          $('.twenty').removeClass('active');
+          $('.a').addClass('active');
+          $('.quarter').addClass('active');
+          $('.to').addClass('active');
+
+          $('.' + getHourClass(hour + 1)).addClass('active');
+        }
+        // twenty to
+        else if (minute >= 36) {
+          $('.half').removeClass('active');
+          $('.past').removeClass('active');
+          $('.twenty').addClass('active');
+          $('.to').addClass('active');
+
+          $('.' + getHourClass(hour)).removeClass('active');
+          $('.' + getHourClass(hour + 1)).addClass('active');
+        }
+        // half past
+        else if (minute >= 26) {
+          $('.twenty').removeClass('active');
+          $('.half').addClass('active');
+          $('.past').addClass('active');
+
+          $('.' + getHourClass(hour)).addClass('active');
+        }
+        // twenty past
+        else if (minute >= 19) {
+          $('.a').removeClass('active');
+          $('.quarter').removeClass('active');
+          $('.twenty').addClass('active');
+          $('.past').addClass('active');
+
+          $('.' + getHourClass(hour)).addClass('active');
+        }
+        // quarter past
+        else if (minute >= 13) {
+          $('.ten').removeClass('active');
+          $('.a').addClass('active');
+          $('.quarter').addClass('active');
+          $('.past').addClass('active');
+
+          $('.' + getHourClass(hour)).addClass('active');
+        }
+        // ten past
+        else if (minute >= 9) {
+          $('.five').removeClass('active');
+          $('.ten').addClass('active');
+          $('.past').addClass('active');
+
+          $('.' + getHourClass(hour)).addClass('active');
+        }
+        // five past
+        else if (minute >= 3) {
+          $('.oclock').removeClass('active');
+          $('.five').addClass('active');
+          $('.past').addClass('active');
+
+          $('.' + getHourClass(hour)).addClass('active');
+        }
+        // on the hour
+        else {
+          $('.oclock').addClass('active');
+          $('.' + getHourClass(hour)).addClass('active');
+        }
+
+        // Special signature reveal effect at specific times
+        checkSignatureReveal();
+      }
+
+      function checkSignatureReveal() {
+        // Check if it's birthday (August 1st)
+        var today = new Date();
+        var isBirthday = (today.getMonth() === 7 && today.getDate() === 1); // Month is 0-indexed, so 7 = August
+        
+        // Reveal signature at 12:00 (noon/midnight) - all signature letters light up
+        if ((hour === 0 || hour === 12) && minute === 0) {
+          $('.clock-letter[class*="signature-"]').addClass('signature-reveal');
+          setTimeout(function() {
+            $('.clock-letter[class*="signature-"]').removeClass('signature-reveal');
+          }, 3000);
+        }
+        
+        // Birthday special effect - continuous celebration animation
+        if (isBirthday) {
+          $('.clock-letter[class*="signature-"]').addClass('birthday-celebration');
+        } else {
+          $('.clock-letter[class*="signature-"]').removeClass('birthday-celebration');
+        }
+        
+        // Subtle pulse effect every 1 minute
+        if (minute % 1 === 0) {
+          $('.clock-letter[class*="signature-"]').addClass('signature-pulse');
+          setTimeout(function() {
+            $('.clock-letter[class*="signature-"]').removeClass('signature-pulse');
+          }, 1000);
+        }
+      }
+
+      clockJS.init = function () {
+        getTimeValues();
+        interval = 60 - currentTime.getSeconds();
+        if (interval === 60) {
+          interval = 0;
+        }
+        setTime();
+      };
+
+    }(window.clockJS = window.clockJS || {}, jQuery));
+
+    clockJS.init();
+
+    // Clock visibility control based on current section
+    function updateClockVisibility() {
+      const clockContainer = document.getElementById('clock-container');
+      const currentSection = getCurrentSection();
+      
+      // Remove all classes first
+      clockContainer.classList.remove('blurred', 'hidden');
+      
+      // Check if we're on the home page (header section)
+      if (currentSection === 'header') {
+        // Home page - show clock normally
+        clockContainer.style.opacity = '1';
+        clockContainer.style.filter = 'none';
+      } else {
+        // Other sections - blur the clock
+        clockContainer.classList.add('blurred');
+      }
+    }
+
+    function getCurrentSection() {
+      // Get all sections
+      const sections = ['header', 'about', 'resume', 'services', 'contact'];
+      
+      // Check which section is currently in view
+      for (let section of sections) {
+        const element = document.getElementById(section);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          const windowHeight = window.innerHeight;
+          
+          // If section is in view (more than 50% of section is visible)
+          if (rect.top <= windowHeight * 0.5 && rect.bottom >= windowHeight * 0.5) {
+            return section;
+          }
+        }
+      }
+      
+      // If we're at the very top of the page, it's the header
+      if (window.scrollY < 100) {
+        return 'header';
+      }
+      
+      // Default to header if no section is clearly in view
+      return 'header';
+    }
+
+    // Update clock visibility on scroll
+    window.addEventListener('scroll', updateClockVisibility);
+    
+    // Update clock visibility on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      updateClockVisibility();
+    });
+    
+    // Update clock visibility when navigation links are clicked
+    document.addEventListener('click', function(e) {
+      if (e.target.classList.contains('nav-link')) {
+        // Small delay to allow the scroll to happen first
+        setTimeout(updateClockVisibility, 100);
+      }
+    });
+
+  });
+</script>
 
 </body>
 
