@@ -6,7 +6,7 @@
 [![ForTheBadge Uses-js](http://ForTheBadge.com/images/badges/uses-js.svg)](http://ForTheBadge.com)
 [![forthebadge](https://forthebadge.com/images/badges/for-you.svg)](https://forthebadge.com)
 
-![Portfolio Preview](https://github.com/Mithilsai/Mithilsai.github.io/blob/master/portfolio.jpg?raw=true)
+![Portfolio Preview](https://github.com/Mithilsai/Mithilsai.github.io/blob/master/assets/imgportfolio.jpg?raw=true)
 
 ## 🚀 Live Demo
 [View Portfolio](https://mithilsai.github.io)
