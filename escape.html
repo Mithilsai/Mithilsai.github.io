@@ -3,79 +3,349 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Escaped</title>
+  <title>ESCAPED - Horror Experience</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css?family=Roboto+Mono:100');
-
-    html, body {
-      font-family: 'Roboto Mono', monospace;
-      background: #212121;
-      height: 100%;
+    * {
       margin: 0;
-    }
-
-    .container {
-      height: 100%;
-      width: 100%;
-      justify-content: center;
-      align-items: center;
-      display: flex;
-      padding: 20px;
+      padding: 0;
       box-sizing: border-box;
     }
 
+    html, body {
+      font-family: 'Space Mono', monospace;
+      background: #000;
+      height: 100vh;
+      overflow: hidden;
+      color: #fff;
+    }
+
+    /* Atmospheric Background */
+    .background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, #1a1a1a 0%, #000 70%);
+      z-index: -2;
+    }
+
+    /* Animated Grid */
+    .grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(0, 255, 0, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 0, 0.1) 1px, transparent 1px);
+      background-size: 50px 50px;
+      animation: gridMove 20s linear infinite;
+      z-index: -1;
+    }
+
+    @keyframes gridMove {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(50px, 50px); }
+    }
+
+    /* Scan Lines Effect */
+    .scanlines {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        transparent 50%, 
+        rgba(0, 255, 0, 0.02) 50%
+      );
+      background-size: 100% 4px;
+      animation: scanlines 0.1s linear infinite;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    @keyframes scanlines {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(4px); }
+    }
+
+    /* Main Container */
+    .container {
+      position: relative;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      z-index: 2;
+    }
+
+    /* Warning Header */
+    .warning-header {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Orbitron', monospace;
+      font-size: 1.2rem;
+      color: #ff0000;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      animation: warningPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes warningPulse {
+      0%, 100% { opacity: 0.3; text-shadow: 0 0 5px #ff0000; }
+      50% { opacity: 1; text-shadow: 0 0 20px #ff0000, 0 0 30px #ff0000; }
+    }
+
+    /* Main Text Display */
+    .text-container {
+      position: relative;
+      max-width: 800px;
+      text-align: center;
+    }
+
     .text {
-      font-weight: 100;
-      font-size: 4vw; /* Responsive font size */
-      color: #FAFAFA;
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(1.5rem, 4vw, 3rem);
+      font-weight: 700;
+      color: #00ff00;
+      text-shadow: 0 0 10px #00ff00;
+      line-height: 1.4;
+      margin-bottom: 20px;
     }
 
-    .dud {
-      color: #757575;
+    .text.dud {
+      color: #ff0000;
+      text-shadow: 0 0 10px #ff0000;
     }
 
-    @keyframes glitch {
+    /* Glitch Effect */
+    .glitch {
+      position: relative;
+      animation: glitchEffect 0.3s ease-in-out infinite;
+    }
+
+    .glitch::before,
+    .glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .glitch::before {
+      animation: glitch-1 0.3s ease-in-out infinite;
+      color: #ff0000;
+      z-index: -1;
+    }
+
+    .glitch::after {
+      animation: glitch-2 0.3s ease-in-out infinite;
+      color: #0000ff;
+      z-index: -2;
+    }
+
+    @keyframes glitchEffect {
+      0%, 100% { transform: translate(0); }
+      20% { transform: translate(-2px, 2px); }
+      40% { transform: translate(-2px, -2px); }
+      60% { transform: translate(2px, 2px); }
+      80% { transform: translate(2px, -2px); }
+    }
+
+    @keyframes glitch-1 {
+      0%, 100% { transform: translate(0); }
+      20% { transform: translate(-3px, 3px); }
+      40% { transform: translate(-3px, -3px); }
+      60% { transform: translate(3px, 3px); }
+      80% { transform: translate(3px, -3px); }
+    }
+
+    @keyframes glitch-2 {
+      0%, 100% { transform: translate(0); }
+      20% { transform: translate(3px, -3px); }
+      40% { transform: translate(3px, 3px); }
+      60% { transform: translate(-3px, -3px); }
+      80% { transform: translate(-3px, 3px); }
+    }
+
+    /* Progress Bar */
+    .progress-container {
+      position: absolute;
+      bottom: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 300px;
+      height: 4px;
+      background: rgba(0, 255, 0, 0.2);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #00ff00, #ffff00, #ff0000);
+      width: 0%;
+      transition: width 0.5s ease;
+      border-radius: 2px;
+      box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+    }
+
+    /* Floating Particles */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: #00ff00;
+      border-radius: 50%;
+      animation: float 6s linear infinite;
+    }
+
+    @keyframes float {
       0% {
-        transform: translate(0);
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 0;
       }
-      20% {
-        transform: translate(-5px, 5px);
+      10% {
+        opacity: 1;
       }
-      40% {
-        transform: translate(-10px, 10px);
-      }
-      60% {
-        transform: translate(5px, -5px);
-      }
-      80% {
-        transform: translate(10px, -10px);
+      90% {
+        opacity: 1;
       }
       100% {
-        transform: translate(0);
+        transform: translateY(-100px) rotate(360deg);
+        opacity: 0;
       }
     }
 
-    .glitch {
-      animation: glitch 0.5s linear infinite;
+    /* Status Display */
+    .status {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      color: #00ff00;
+      text-align: right;
+    }
+
+    .status-item {
+      margin-bottom: 5px;
+      opacity: 0.8;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .text {
+        font-size: clamp(1rem, 5vw, 2rem);
+      }
+      
+      .warning-header {
+        font-size: 0.9rem;
+        letter-spacing: 2px;
+      }
+      
+      .progress-container {
+        width: 250px;
+      }
+      
+      .status {
+        font-size: 0.7rem;
+      }
+    }
+
+    /* Fade Out Animation */
+    .fade-out {
+      animation: fadeOut 3s ease-in-out forwards;
+    }
+
+    @keyframes fadeOut {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    /* Cursor Effect */
+    .cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1.2em;
+      background: #00ff00;
+      margin-left: 2px;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
     }
   </style>
 </head>
 <body>
+  <!-- Atmospheric Background -->
+  <div class="background"></div>
+  <div class="grid"></div>
+  <div class="scanlines"></div>
+  
+  <!-- Floating Particles -->
+  <div class="particles" id="particles"></div>
+
+  <!-- Status Display -->
+  <div class="status">
+    <div class="status-item">SYSTEM: ONLINE</div>
+    <div class="status-item">SECURITY: COMPROMISED</div>
+    <div class="status-item">STATUS: CRITICAL</div>
+  </div>
+
+  <!-- Warning Header -->
+  <div class="warning-header">⚠️ SYSTEM BREACH DETECTED ⚠️</div>
+
+  <!-- Main Container -->
   <div class="container">
-    <div class="text"></div>
+    <div class="text-container">
+      <div class="text" id="text"></div>
+    </div>
+    
+    <!-- Progress Bar -->
+    <div class="progress-container">
+      <div class="progress-bar" id="progress"></div>
+    </div>
   </div>
 
   <script>
-    class TextScramble {
+    class EnhancedTextScramble {
       constructor(el) {
         this.el = el;
-        this.chars = '!<>-_\\/[]{}—=+*^?#________';
+        this.chars = '!<>-_\\/[]{}—=+*^?#________ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         this.update = this.update.bind(this);
+        this.frame = 0;
+        this.queue = [];
+        this.resolve = null;
       }
+
       setText(newText) {
         const oldText = this.el.innerText;
         const length = Math.max(oldText.length, newText.length);
         const promise = new Promise((resolve) => this.resolve = resolve);
+        
         this.queue = [];
         for (let i = 0; i < length; i++) {
           const from = oldText[i] || '';
@@ -84,16 +354,20 @@
           const end = start + Math.floor(Math.random() * 40);
           this.queue.push({ from, to, start, end });
         }
+        
         cancelAnimationFrame(this.frameRequest);
         this.frame = 0;
         this.update();
         return promise;
       }
+
       update() {
         let output = '';
         let complete = 0;
+        
         for (let i = 0, n = this.queue.length; i < n; i++) {
           let { from, to, start, end, char } = this.queue[i];
+          
           if (this.frame >= end) {
             complete++;
             output += to;
@@ -107,7 +381,9 @@
             output += from;
           }
         }
-        this.el.innerHTML = output;
+        
+        this.el.innerHTML = output + '<span class="cursor"></span>';
+        
         if (complete === this.queue.length) {
           this.resolve();
         } else {
@@ -115,47 +391,116 @@
           this.frame++;
         }
       }
+
       randomChar() {
         return this.chars[Math.floor(Math.random() * this.chars.length)];
       }
     }
 
-    const phrases = [
-      'Warning!',
-      'Xianara has escaped from its prison.',
-      'Please Stay in the Main Room',
-      'Your Captain',
-      'Mithil Sai Jakka'
-    ];
+    // Particle System
+    class ParticleSystem {
+      constructor() {
+        this.particles = [];
+        this.container = document.getElementById('particles');
+        this.init();
+      }
 
-    const el = document.querySelector('.text');
-    const fx = new TextScramble(el);
+      init() {
+        setInterval(() => {
+          this.createParticle();
+        }, 200);
+      }
+
+      createParticle() {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+        particle.style.animationDelay = Math.random() * 2 + 's';
+        
+        this.container.appendChild(particle);
+        
+        setTimeout(() => {
+          if (particle.parentNode) {
+            particle.parentNode.removeChild(particle);
+          }
+        }, 6000);
+      }
+    }
+
+         // Enhanced Phrases with Horror Theme
+     const phrases = [
+       'WARNING: SYSTEM BREACH DETECTED',
+       'XIANARA HAS ESCAPED FROM ITS CRYOGENIC CHAMBER',
+       'SECURITY PROTOCOLS COMPROMISED',
+       'QUARANTINE PROTOCOL ACTIVATED',
+       'YOUR CAPTAIN',
+       'MITHIL SAI JAKKA',
+       'INITIATING EMERGENCY PROTOCOLS...',
+       'REDIRECTING TO SAFE ZONE...'
+     ];
+
+    // Initialize
+    const el = document.querySelector('#text');
+    const fx = new EnhancedTextScramble(el);
+    const progressBar = document.querySelector('#progress');
+    const particleSystem = new ParticleSystem();
 
     let counter = 0;
+    let progress = 0;
 
-    const next = () => {
-      fx.setText(phrases[counter]).then(() => {
-        setTimeout(next, 1000);
-      });
-      counter = (counter + 1) % phrases.length;
-      if (counter === phrases.length - 1) {
-        setTimeout(() => {
-          document.body.style.transition = 'opacity 2s';
-          document.body.style.opacity = '0';
-          setTimeout(() => {
-            window.location.href = 'https://mithilsai.github.io/#services'; // Redirect to projects section
-          }, 2000);
-        }, 2500); // Trigger the fade-out immediately after displaying the last phrase
-      }
+    const updateProgress = () => {
+      progress = (counter / phrases.length) * 100;
+      progressBar.style.width = progress + '%';
     };
 
-    // Apply initial glitch effect
-    el.classList.add('glitch');
-    setTimeout(() => {
-      el.classList.remove('glitch');
-      next();
-    }, 500);
+    const next = () => {
+      // Add glitch effect
+      el.classList.add('glitch');
+      el.setAttribute('data-text', phrases[counter]);
+      
+      fx.setText(phrases[counter]).then(() => {
+        setTimeout(() => {
+          el.classList.remove('glitch');
+          
+          if (counter < phrases.length - 1) {
+            setTimeout(next, 1500);
+          } else {
+            // Final sequence
+            setTimeout(() => {
+              document.body.classList.add('fade-out');
+              setTimeout(() => {
+                window.location.href = 'https://mithilsai.github.io/#services';
+              }, 3000);
+            }, 2000);
+          }
+        }, 500);
+      });
+      
+      counter++;
+      updateProgress();
+    };
 
+    // Start the sequence
+    setTimeout(() => {
+      next();
+    }, 1000);
+
+    // Add interactive effects
+    document.addEventListener('mousemove', (e) => {
+      const x = e.clientX / window.innerWidth;
+      const y = e.clientY / window.innerHeight;
+      
+      document.documentElement.style.setProperty('--mouse-x', x);
+      document.documentElement.style.setProperty('--mouse-y', y);
+    });
+
+    // Add keyboard interaction
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        window.location.href = 'https://mithilsai.github.io/#services';
+      }
+    });
   </script>
 </body>
 </html>

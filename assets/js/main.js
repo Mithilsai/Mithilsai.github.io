@@ -240,99 +240,217 @@ window.addEventListener('load', function() {
   }
 
   /**
-   * Mobile nav toggle
+   * Mobile bottom navigation functionality
    */
-  on('click', '.mobile-nav-toggle', function(e) {
+  on('click', '.mobile-nav-item', function(e) {
     e.preventDefault()
-    e.stopPropagation()
-    const navbar = select('#navbar')
-    const mobileToggle = this
     
-    console.log('Mobile nav toggle clicked')
-    console.log('Navbar element:', navbar)
-    console.log('Current navbar classes:', navbar.classList.toString())
+    console.log('📱 Mobile nav clicked:', this.getAttribute('href'));
     
-    if (navbar.classList.contains('navbar-mobile')) {
-      // Close menu
-      navbar.classList.remove('navbar-mobile')
-      mobileToggle.classList.remove('bi-x')
-      mobileToggle.classList.add('bi-list')
-      console.log('Menu closed')
-    } else {
-      // Open menu
-      navbar.classList.add('navbar-mobile')
-      mobileToggle.classList.remove('bi-list')
-      mobileToggle.classList.add('bi-x')
-      console.log('Menu opened')
-    }
+    // Remove active class from all mobile nav items
+    const mobileNavItems = select('.mobile-nav-item', true)
+    mobileNavItems.forEach(item => {
+      item.classList.remove('active')
+    })
     
-    console.log('After toggle - navbar classes:', navbar.classList.toString())
-    console.log('Mobile menu should be visible:', navbar.classList.contains('navbar-mobile'))
-  })
-
-  /**
-   * Close mobile menu function
-   */
-  const closeMobileMenu = () => {
-    const navbar = select('#navbar')
-    const navbarToggle = select('.mobile-nav-toggle')
-    if (navbar && navbarToggle) {
-      navbar.classList.remove('navbar-mobile')
-      navbarToggle.classList.add('bi-list')
-      navbarToggle.classList.remove('bi-x')
-    }
-  }
-
-  /**
-   * Scrool with ofset on links with a class name .scrollto
-   */
-  on('click', '#navbar .nav-link', function(e) {
-    let section = select(this.hash)
+    // Add active class to clicked item
+    this.classList.add('active')
+    
+    // Get the target section
+    const targetSection = this.getAttribute('href')
+    const section = select(targetSection)
+    
     if (section) {
-      e.preventDefault()
-
-      let navbar = select('#navbar')
-      let header = select('#header')
-      let sections = select('section', true)
-      let navlinks = select('#navbar .nav-link', true)
-
-      navlinks.forEach((item) => {
-        item.classList.remove('active')
+      // Update desktop navigation active state
+      const navLinks = select('#navbar .nav-link', true)
+      navLinks.forEach(link => {
+        link.classList.remove('active')
+        if (link.getAttribute('href') === targetSection) {
+          link.classList.add('active')
+        }
       })
-
-      this.classList.add('active')
-
-      if (navbar.classList.contains('navbar-mobile')) {
-        closeMobileMenu()
-      }
-
-      if (this.hash == '#header') {
+      
+      // Handle header section specially
+      if (targetSection === '#header') {
+        const header = select('#header')
+        const sections = select('section', true)
+        
         header.classList.remove('header-top')
-        sections.forEach((item) => {
+        sections.forEach(item => {
           item.classList.remove('section-show')
         })
-        return;
+        
+        // Update clock visibility for mobile
+        setTimeout(() => {
+          console.log('📱 Calling updateClockVisibility from mobile nav (header)');
+          updateClockVisibility();
+        }, 100);
+        
+        // Smooth scroll to top
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        })
+        return
       }
-
+      
+      // Handle other sections
+      const header = select('#header')
+      const sections = select('section', true)
+      
       if (!header.classList.contains('header-top')) {
         header.classList.add('header-top')
         setTimeout(function() {
-          sections.forEach((item) => {
+          sections.forEach(item => {
             item.classList.remove('section-show')
           })
           section.classList.add('section-show')
-
-        }, 350);
+        }, 350)
       } else {
-        sections.forEach((item) => {
+        sections.forEach(item => {
           item.classList.remove('section-show')
         })
         section.classList.add('section-show')
       }
-
-      scrollto(this.hash)
+      
+      // Update clock visibility for mobile
+      setTimeout(() => {
+        console.log('📱 Calling updateClockVisibility from mobile nav (other sections)');
+        updateClockVisibility();
+      }, 100);
+      
+      // Smooth scroll to section
+      const headerHeight = header.offsetHeight
+      const sectionTop = section.offsetTop - headerHeight - 20
+      
+      window.scrollTo({
+        top: sectionTop,
+        behavior: 'smooth'
+      })
     }
   }, true)
+
+  /**
+   * Update mobile navigation active state on scroll
+   */
+  const updateMobileNavActive = () => {
+    const sections = ['header', 'about', 'resume', 'services', 'contact']
+    const mobileNavItems = select('.mobile-nav-item', true)
+    
+    sections.forEach((sectionId, index) => {
+      const section = select(`#${sectionId}`)
+      if (section) {
+        const rect = section.getBoundingClientRect()
+        const windowHeight = window.innerHeight
+        
+        // Check if section is in view (more than 50% visible)
+        if (rect.top <= windowHeight * 0.5 && rect.bottom >= windowHeight * 0.5) {
+          // Remove active from all items
+          mobileNavItems.forEach(item => item.classList.remove('active'))
+          
+          // Add active to corresponding mobile nav item
+          if (mobileNavItems[index]) {
+            mobileNavItems[index].classList.add('active')
+          }
+        }
+      }
+    })
+  }
+
+  /**
+   * Clock visibility control based on current section
+   */
+  const updateClockVisibility = () => {
+    const clockContainer = document.getElementById('clock-container');
+    if (!clockContainer) {
+      console.log('❌ Clock container not found');
+      return;
+    }
+    
+    const currentSection = getCurrentSection();
+    const isMobile = window.innerWidth <= 768;
+    
+    console.log('🔍 Clock Debug:', {
+      currentSection,
+      isMobile,
+      windowWidth: window.innerWidth,
+      currentDisplay: clockContainer.style.display,
+      currentOpacity: clockContainer.style.opacity
+    });
+    
+    // Remove all classes first
+    clockContainer.classList.remove('blurred', 'hidden');
+    
+    // Check if we're on the home page (header section)
+    if (currentSection === 'header') {
+      // Home page - show clock normally
+      if (isMobile) {
+        clockContainer.style.setProperty('display', 'flex', 'important');
+        console.log('📱 Mobile: Showing clock (display: flex !important)');
+      } else {
+        clockContainer.style.opacity = '1';
+        clockContainer.style.filter = 'none';
+        console.log('🖥️ Desktop: Showing clock (opacity: 1)');
+      }
+    } else {
+      // Other sections
+      if (isMobile) {
+        // On mobile: completely hide the clock
+        clockContainer.style.setProperty('display', 'none', 'important');
+        console.log('📱 Mobile: Hiding clock (display: none !important)');
+      } else {
+        // On desktop: blur the clock
+        clockContainer.classList.add('blurred');
+        console.log('🖥️ Desktop: Blurring clock');
+      }
+    }
+  }
+
+  /**
+   * Get current section based on scroll position
+   */
+  const getCurrentSection = () => {
+    // Get all sections
+    const sections = ['header', 'about', 'resume', 'services', 'contact'];
+    
+    // Check which section is currently in view
+    for (let section of sections) {
+      const element = document.getElementById(section);
+      if (element) {
+        const rect = element.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+        
+        // If section is in view (more than 50% of section is visible)
+        if (rect.top <= windowHeight * 0.5 && rect.bottom >= windowHeight * 0.5) {
+          console.log('📍 Section detected:', section, {
+            rectTop: rect.top,
+            rectBottom: rect.bottom,
+            windowHeight: windowHeight,
+            scrollY: window.scrollY
+          });
+          return section;
+        }
+      }
+    }
+    
+    // If we're at the very top of the page, it's the header
+    if (window.scrollY < 100) {
+      console.log('📍 At top of page, returning header');
+      return 'header';
+    }
+    
+    // Default to header if no section is clearly in view
+    console.log('📍 No section detected, defaulting to header');
+    return 'header';
+  }
+
+  /**
+   * Close mobile menu function - now handles bottom nav
+   */
+  const closeMobileMenu = () => {
+    // This function is kept for compatibility but no longer needed
+    // as bottom navigation doesn't need to be "closed"
+  }
 
   /**
    * Activate/show sections on load with hash links
@@ -364,6 +482,76 @@ window.addEventListener('load', function() {
     }
   });
 
+  /**
+   * Desktop navigation click handler
+   */
+  on('click', '#navbar .nav-link', function(e) {
+    let section = select(this.hash)
+    if (section) {
+      e.preventDefault()
+
+      let navbar = select('#navbar')
+      let header = select('#header')
+      let sections = select('section', true)
+      let navlinks = select('#navbar .nav-link', true)
+
+      navlinks.forEach((item) => {
+        item.classList.remove('active')
+      })
+
+      this.classList.add('active')
+
+      // Update mobile navigation active state
+      const mobileNavItems = select('.mobile-nav-item', true)
+      const sectionIds = ['header', 'about', 'resume', 'services', 'contact']
+      const targetIndex = sectionIds.findIndex(id => `#${id}` === this.hash)
+      
+      if (targetIndex !== -1 && mobileNavItems[targetIndex]) {
+        mobileNavItems.forEach(item => item.classList.remove('active'))
+        mobileNavItems[targetIndex].classList.add('active')
+      }
+
+      if (this.hash == '#header') {
+        header.classList.remove('header-top')
+        sections.forEach((item) => {
+          item.classList.remove('section-show')
+        })
+        
+        // Update clock visibility
+        setTimeout(() => {
+          updateClockVisibility();
+        }, 100);
+        return;
+      }
+
+      if (!header.classList.contains('header-top')) {
+        header.classList.add('header-top')
+        setTimeout(function() {
+          sections.forEach((item) => {
+            item.classList.remove('section-show')
+          })
+          section.classList.add('section-show')
+          
+          // Update clock visibility
+          setTimeout(() => {
+            updateClockVisibility();
+          }, 100);
+        }, 350);
+      } else {
+        sections.forEach((item) => {
+          item.classList.remove('section-show')
+        })
+        section.classList.add('section-show')
+        
+        // Update clock visibility
+        setTimeout(() => {
+          updateClockVisibility();
+        }, 100);
+      }
+
+      scrollto(this.hash)
+    }
+  }, true)
 
 
   /**
@@ -390,6 +578,8 @@ window.addEventListener('load', function() {
    */
   window.addEventListener('scroll', () => {
     revealOnScroll();
+    updateMobileNavActive(); // Update mobile nav active state
+    updateClockVisibility(); // Update clock visibility
     // Uncomment the line below if you want parallax effect
     // parallaxEffect();
   });
@@ -398,39 +588,11 @@ window.addEventListener('load', function() {
    * Add hover effects for interactive elements
    */
   document.addEventListener('DOMContentLoaded', () => {
-    // Initialize mobile navigation
-    const mobileToggle = select('.mobile-nav-toggle')
-    const navbar = select('#navbar')
+    // Initialize mobile navigation active state
+    updateMobileNavActive();
     
-    if (mobileToggle) {
-      // Ensure hamburger icon shows initially
-      mobileToggle.classList.add('bi-list')
-      mobileToggle.classList.remove('bi-x')
-      console.log('Mobile nav initialized with hamburger icon')
-    }
-    
-    if (navbar) {
-      // Ensure navbar starts without mobile class
-      navbar.classList.remove('navbar-mobile')
-      console.log('Navbar initialized without mobile class')
-    }
-    
-    // Close mobile menu when clicking outside
-    document.addEventListener('click', (e) => {
-      const navbar = select('#navbar')
-      const mobileToggle = select('.mobile-nav-toggle')
-      
-      // Don't close if clicking on the mobile toggle itself
-      if (e.target.classList.contains('mobile-nav-toggle') || e.target.closest('.mobile-nav-toggle')) {
-        return
-      }
-      
-      if (navbar && navbar.classList.contains('navbar-mobile')) {
-        if (!navbar.contains(e.target)) {
-          closeMobileMenu()
-        }
-      }
-    })
+    // Initialize clock visibility
+    updateClockVisibility();
     
     // Add hover effects to project cards
     const projectCards = document.querySelectorAll('.project-card');

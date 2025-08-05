@@ -198,7 +198,69 @@
 
     @media (max-width: 768px) {
       #clock-container {
-        display: none !important;
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        width: 120px;
+        height: 120px;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 8px;
+        z-index: 999;
+        display: flex !important;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      }
+      
+      .clock-row {
+        display: flex;
+        justify-content: center;
+        margin: 1px 0;
+      }
+      
+      .clock-letter {
+        width: 8px;
+        height: 8px;
+        line-height: 8px;
+        font-size: 6px;
+        margin: 0 1px;
+        border-radius: 1px;
+        background: rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .clock-letter.active {
+        background: rgba(255, 255, 255, 0.3);
+        box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
+      }
+      
+      .clock-letter[class*="signature-"].active {
+        background: rgba(255, 255, 255, 0.4);
+        box-shadow: 0 0 6px rgba(255, 255, 255, 0.7);
+      }
+      
+      /* Hide clock on very small screens to avoid clutter */
+      @media (max-width: 480px) {
+        #clock-container {
+          width: 100px;
+          height: 100px;
+          top: 15px;
+          right: 15px;
+        }
+        
+        .clock-letter {
+          width: 6px;
+          height: 6px;
+          line-height: 6px;
+          font-size: 4px;
+          margin: 0 0.5px;
+        }
       }
     }
 
@@ -380,8 +442,31 @@
          <li><a class="nav-link" href="#services">Projects</a></li>
          <li><a class="nav-link" href="#contact">Contact</a></li>
        </ul>
-       <i class="bi bi-list mobile-nav-toggle"></i>
      </nav><!-- .navbar -->
+
+     <!-- Mobile Bottom Navigation -->
+     <nav id="mobile-nav" class="mobile-bottom-nav">
+       <a href="#header" class="mobile-nav-item active">
+         <i class="bi bi-house"></i>
+         <span>Home</span>
+       </a>
+       <a href="#about" class="mobile-nav-item">
+         <i class="bi bi-person"></i>
+         <span>About</span>
+       </a>
+       <a href="#resume" class="mobile-nav-item">
+         <i class="bi bi-file-earmark-text"></i>
+         <span>Resume</span>
+       </a>
+       <a href="#services" class="mobile-nav-item">
+         <i class="bi bi-briefcase"></i>
+         <span>Projects</span>
+       </a>
+       <a href="#contact" class="mobile-nav-item">
+         <i class="bi bi-envelope"></i>
+         <span>Contact</span>
+       </a>
+     </nav>
 
      <div class="social-links">
        <a href="https://github.com/Mithilsai/" target="_blank" class="github"><i class="bi bi-github"></i></a>
@@ -1116,7 +1201,7 @@
                <span class="tech-badge">Real-time</span>
              </div>
              <div class="project-links">
-               <a href="escape.html" target="_blank" class="demo-link">View Project</a>
+               <a href="escape.html" class="demo-link">View Project</a>
              </div>
            </div>
          </div>
@@ -1137,7 +1222,7 @@
                <span class="tech-badge">Prototyping</span>
              </div>
              <div class="project-links">
-               <a href="escape.html" target="_blank" class="demo-link">View Project</a>
+               <a href="escape.html" class="demo-link">View Project</a>
              </div>
            </div>
          </div>
@@ -1181,7 +1266,7 @@
                <span class="tech-badge">Sentiment Analysis</span>
              </div>
              <div class="project-links">
-               <a href="escape.html" target="_blank" class="demo-link">View Project</a>
+               <a href="escape.html" class="demo-link">View Project</a>
              </div>
            </div>
          </div>
@@ -1202,7 +1287,7 @@
                <span class="tech-badge">Logistics</span>
              </div>
              <div class="project-links">
-               <a href="escape.html" target="_blank" class="demo-link">View Project</a>
+               <a href="escape.html" class="demo-link">View Project</a>
              </div>
            </div>
          </div>
@@ -1223,7 +1308,7 @@
                <span class="tech-badge">IoT</span>
              </div>
              <div class="project-links">
-               <a href="escape.html" target="_blank" class="demo-link">View Project</a>
+               <a href="escape.html" class="demo-link">View Project</a>
              </div>
            </div>
          </div>
@@ -1462,67 +1547,7 @@
 
     clockJS.init();
 
-    // Clock visibility control based on current section
-    function updateClockVisibility() {
-      const clockContainer = document.getElementById('clock-container');
-      const currentSection = getCurrentSection();
-      
-      // Remove all classes first
-      clockContainer.classList.remove('blurred', 'hidden');
-      
-      // Check if we're on the home page (header section)
-      if (currentSection === 'header') {
-        // Home page - show clock normally
-        clockContainer.style.opacity = '1';
-        clockContainer.style.filter = 'none';
-      } else {
-        // Other sections - blur the clock
-        clockContainer.classList.add('blurred');
-      }
-    }
 
-    function getCurrentSection() {
-      // Get all sections
-      const sections = ['header', 'about', 'resume', 'services', 'contact'];
-      
-      // Check which section is currently in view
-      for (let section of sections) {
-        const element = document.getElementById(section);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          const windowHeight = window.innerHeight;
-          
-          // If section is in view (more than 50% of section is visible)
-          if (rect.top <= windowHeight * 0.5 && rect.bottom >= windowHeight * 0.5) {
-            return section;
-          }
-        }
-      }
-      
-      // If we're at the very top of the page, it's the header
-      if (window.scrollY < 100) {
-        return 'header';
-      }
-      
-      // Default to header if no section is clearly in view
-      return 'header';
-    }
-
-    // Update clock visibility on scroll
-    window.addEventListener('scroll', updateClockVisibility);
-    
-    // Update clock visibility on page load
-    document.addEventListener('DOMContentLoaded', function() {
-      updateClockVisibility();
-    });
-    
-    // Update clock visibility when navigation links are clicked
-    document.addEventListener('click', function(e) {
-      if (e.target.classList.contains('nav-link')) {
-        // Small delay to allow the scroll to happen first
-        setTimeout(updateClockVisibility, 100);
-      }
-    });
 
   });
 </script>
