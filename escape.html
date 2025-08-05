@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Escaped</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css?family=Roboto+Mono:100');
+
+    html, body {
+      font-family: 'Roboto Mono', monospace;
+      background: #212121;
+      height: 100%;
+      margin: 0;
+    }
+
+    .container {
+      height: 100%;
+      width: 100%;
+      justify-content: center;
+      align-items: center;
+      display: flex;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .text {
+      font-weight: 100;
+      font-size: 4vw; /* Responsive font size */
+      color: #FAFAFA;
+    }
+
+    .dud {
+      color: #757575;
+    }
+
+    @keyframes glitch {
+      0% {
+        transform: translate(0);
+      }
+      20% {
+        transform: translate(-5px, 5px);
+      }
+      40% {
+        transform: translate(-10px, 10px);
+      }
+      60% {
+        transform: translate(5px, -5px);
+      }
+      80% {
+        transform: translate(10px, -10px);
+      }
+      100% {
+        transform: translate(0);
+      }
+    }
+
+    .glitch {
+      animation: glitch 0.5s linear infinite;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="text"></div>
+  </div>
+
+  <script>
+    class TextScramble {
+      constructor(el) {
+        this.el = el;
+        this.chars = '!<>-_\\/[]{}—=+*^?#________';
+        this.update = this.update.bind(this);
+      }
+      setText(newText) {
+        const oldText = this.el.innerText;
+        const length = Math.max(oldText.length, newText.length);
+        const promise = new Promise((resolve) => this.resolve = resolve);
+        this.queue = [];
+        for (let i = 0; i < length; i++) {
+          const from = oldText[i] || '';
+          const to = newText[i] || '';
+          const start = Math.floor(Math.random() * 40);
+          const end = start + Math.floor(Math.random() * 40);
+          this.queue.push({ from, to, start, end });
+        }
+        cancelAnimationFrame(this.frameRequest);
+        this.frame = 0;
+        this.update();
+        return promise;
+      }
+      update() {
+        let output = '';
+        let complete = 0;
+        for (let i = 0, n = this.queue.length; i < n; i++) {
+          let { from, to, start, end, char } = this.queue[i];
+          if (this.frame >= end) {
+            complete++;
+            output += to;
+          } else if (this.frame >= start) {
+            if (!char || Math.random() < 0.28) {
+              char = this.randomChar();
+              this.queue[i].char = char;
+            }
+            output += `<span class="dud">${char}</span>`;
+          } else {
+            output += from;
+          }
+        }
+        this.el.innerHTML = output;
+        if (complete === this.queue.length) {
+          this.resolve();
+        } else {
+          this.frameRequest = requestAnimationFrame(this.update);
+          this.frame++;
+        }
+      }
+      randomChar() {
+        return this.chars[Math.floor(Math.random() * this.chars.length)];
+      }
+    }
+
+    const phrases = [
+      'Warning!',
+      'Xianara has escaped from its prison.',
+      'Please Stay in the Main Room',
+      'Your Captain',
+      'Mithil Sai Jakka'
+    ];
+
+    const el = document.querySelector('.text');
+    const fx = new TextScramble(el);
+
+    let counter = 0;
+
+    const next = () => {
+      fx.setText(phrases[counter]).then(() => {
+        setTimeout(next, 1000);
+      });
+      counter = (counter + 1) % phrases.length;
+      if (counter === phrases.length - 1) {
+        setTimeout(() => {
+          document.body.style.transition = 'opacity 2s';
+          document.body.style.opacity = '0';
+          setTimeout(() => {
+            window.location.href = 'https://mithilsai.github.io/#services'; // Redirect to projects section
+          }, 2000);
+        }, 2500); // Trigger the fade-out immediately after displaying the last phrase
+      }
+    };
+
+    // Apply initial glitch effect
+    el.classList.add('glitch');
+    setTimeout(() => {
+      el.classList.remove('glitch');
+      next();
+    }, 500);
+
+  </script>
+</body>
+</html>
