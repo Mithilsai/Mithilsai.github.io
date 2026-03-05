@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chronicles of Andhra Pradesh: Complete Historical Archive</title>
+    
+    <!-- Premium Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS for Real-World Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+    <style>
+        /* --- 1. DESIGN SYSTEM VARIABLES --- */
+        :root {
+            --bg-page: #F8F7F3;        /* Soft Museum Alabaster */
+            --bg-card: #FFFFFF;        /* Crisp White */
+            --bg-tldr: #F0EEE4;        /* Primer Box Beige */
+            
+            --text-main: #334155;      /* Slate 700 */
+            --text-heading: #1E293B;   /* Slate 800 */
+            --text-muted: #64748B;     /* Slate 500 */
+            
+            --accent-crimson: #9B2C2C; /* Historical Red */
+            --accent-gold: #B45309;    /* Amber */
+            
+            /* Taxonomy Colors */
+            --tax-king: #D97706;       
+            --tax-inscr: #0284C7;      
+            --tax-battle: #DC2626;     
+            --tax-arch: #059669;       
+            
+            --border-light: #E2E8F0;
+            --border-med: #CBD5E1;
+            
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-card: 0 4px 15px -2px rgba(0,0,0,0.05);
+            --shadow-hover: 0 12px 25px -4px rgba(0,0,0,0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            line-height: 1.65;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4 { font-family: 'Playfair Display', serif; color: var(--text-heading); }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-page); }
+        ::-webkit-scrollbar-thumb { background: var(--border-med); border-radius: 4px; }
+
+        /* --- 2. HEADER --- */
+        header { text-align: center; padding: 70px 20px 40px; max-width: 900px; margin: 0 auto; }
+        header h1 { font-size: clamp(2rem, 4vw, 3.5rem); line-height: 1.2; margin-bottom: 16px; }
+        header p { font-size: 1.05rem; color: var(--text-muted); }
+
+        /* --- 3. STICKY FILTER BAR --- */
+        .filter-nav {
+            position: sticky; top: 0; z-index: 1000;
+            background: rgba(248, 247, 243, 0.95); backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-light); padding: 12px 20px;
+            display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        }
+        .filter-btn {
+            background: var(--bg-card); border: 1px solid var(--border-light);
+            padding: 8px 16px; border-radius: 30px; font-size: 0.85rem; font-family: 'Inter', sans-serif;
+            font-weight: 500; cursor: pointer; color: var(--text-muted);
+            display: flex; align-items: center; gap: 8px; transition: 0.2s ease;
+            box-shadow: var(--shadow-sm);
+        }
+        .filter-btn:hover { background: var(--bg-tldr); color: var(--text-heading); }
+        .filter-btn.active { border-color: var(--text-heading); color: var(--text-heading); font-weight: 600; box-shadow: var(--shadow-card); }
+        
+        .dot { width: 8px; height: 8px; border-radius: 50%; }
+        .dot-king { background-color: var(--tax-king); }
+        .dot-inscr { background-color: var(--tax-inscr); }
+        .dot-battle { background-color: var(--tax-battle); }
+        .dot-arch { background-color: var(--tax-arch); }
+
+        /* Filtering UI Logic */
+        body[data-filter="king"] .filterable:not(.f-king),
+        body[data-filter="inscr"] .filterable:not(.f-inscr),
+        body[data-filter="battle"] .filterable:not(.f-battle),
+        body[data-filter="arch"] .filterable:not(.f-arch) {
+            opacity: 0.2; filter: grayscale(100%); pointer-events: none;
+        }
+
+        /* --- 4. MASTER LAYOUT GRID --- */
+        .layout-container {
+            display: grid;
+            grid-template-columns: 180px minmax(0, 1fr) 350px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            gap: 40px;
+            align-items: start; /* Allows sticky children to work */
+        }
+
+        /* --- 5. ELEVATOR TRACKER (LEFT) --- */
+        .elevator { position: sticky; top: 100px; border-right: 1px solid var(--border-light); padding-right: 10px; }
+        .elevator-link {
+            display: block; font-size: 0.85rem; color: var(--text-muted); text-decoration: none;
+            padding: 10px 0; margin-bottom: 2px; transition: 0.2s ease;
+            border-right: 2px solid transparent; margin-right: -11px;
+        }
+        .elevator-link:hover { color: var(--text-heading); }
+        .elevator-link.active { color: var(--accent-crimson); font-weight: 600; border-right-color: var(--accent-crimson); }
+
+        /* --- 6. TIMELINE (CENTER) --- */
+        .timeline { position: relative; padding-left: 2.5rem; margin-bottom: 100px; width: 100%; }
+        .timeline::before { content: ''; position: absolute; top: 0; bottom: 0; left: 11px; width: 2px; background-color: var(--border-med); }
+
+        .timeline-card { position: relative; margin-bottom: 4rem; opacity: 0; transform: translateY(30px); transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+        .timeline-card.visible { opacity: 1; transform: translateY(0); }
+
+        .timeline-card::before {
+            content: ''; position: absolute; left: -2.5rem; top: 24px;
+            width: 16px; height: 16px; background-color: var(--bg-page);
+            border: 3px solid var(--accent-crimson); border-radius: 50%; z-index: 2;
+            transition: 0.3s ease;
+        }
+        .timeline-card:hover::before { transform: scale(1.3); background-color: var(--accent-crimson); }
+
+        .card-content {
+            background-color: var(--bg-card); border: 1px solid var(--border-light);
+            border-radius: 12px; padding: 2.5rem; box-shadow: var(--shadow-card);
+            transition: 0.3s ease;
+        }
+        .card-content:hover { box-shadow: var(--shadow-hover); border-color: var(--border-med); }
+
+        .era-badge {
+            display: inline-block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 1px; color: var(--accent-crimson); background: var(--accent-light);
+            padding: 4px 12px; border-radius: 4px; margin-bottom: 1rem;
+        }
+        .card-content h2 { font-size: 1.8rem; margin-bottom: 1.5rem; }
+
+        .tldr { background-color: var(--bg-tldr); border-left: 4px solid var(--accent-gold); padding: 1.2rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
+        .tldr h4 { font-family: 'Inter', sans-serif; font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; letter-spacing: 0.5px; }
+        .tldr ul { list-style: none; }
+        .tldr li { position: relative; padding-left: 1.2rem; font-size: 0.95rem; margin-bottom: 8px; color: var(--text-heading); font-weight: 500; }
+        .tldr li::before { content: '→'; position: absolute; left: 0; color: var(--accent-gold); }
+
+        .standard-list { list-style: none; display: flex; flex-direction: column; gap: 14px; margin-bottom: 1.5rem; }
+        .standard-list li { position: relative; padding-left: 1.4rem; font-size: 0.95rem; transition: opacity 0.4s ease, filter 0.4s ease; }
+        .standard-list li::before { content: '■'; position: absolute; left: 0; top: 6px; font-size: 0.5rem; color: var(--border-med); }
+
+        /* --- 7. FLOWCHART (KING TO KING) --- */
+        .flow-container { display: flex; flex-direction: column; }
+        .flow-node { background: var(--bg-page); border: 1px solid var(--border-light); border-radius: 8px; overflow: hidden; transition: opacity 0.4s ease, filter 0.4s ease; }
+        
+        .flow-arrow { display: flex; justify-content: center; align-items: center; height: 30px; position: relative; transition: opacity 0.4s ease, filter 0.4s ease; }
+        .flow-arrow::before { content: ''; position: absolute; top: 0; bottom: 0; width: 2px; background: var(--border-dark); }
+        .flow-arrow svg { position: relative; z-index: 1; background: var(--bg-card); color: var(--text-muted); width: 22px; height: 22px; border-radius: 50%; padding: 2px; flex-shrink: 0; }
+
+        .flow-btn {
+            width: 100%; text-align: left; padding: 14px 20px; background: transparent; border: none; cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center; font-family: 'Inter', sans-serif;
+            font-size: 1rem; font-weight: 600; color: var(--text-heading); transition: 0.2s ease;
+        }
+        .flow-btn-left { display: flex; align-items: center; gap: 8px; }
+        
+        /* Strict icon sizing for headers to prevent blowout */
+        .inline-icon { width: 18px !important; height: 18px !important; min-width: 18px; min-height: 18px; flex-shrink: 0; color: var(--accent-crimson); }
+        
+        .flow-btn:hover { background-color: var(--border-light); }
+        .flow-btn.active { background-color: var(--bg-card); border-bottom: 1px solid var(--border-light); color: var(--accent-crimson); }
+        
+        .chevron { transition: transform 0.3s ease; color: var(--text-muted); width: 18px; height: 18px; flex-shrink: 0; }
+        .flow-btn.active .chevron { transform: rotate(180deg); color: var(--accent-crimson); }
+
+        .flow-content { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.4s ease; background: var(--bg-card); }
+        .flow-content.open { grid-template-rows: 1fr; }
+        .flow-inner { overflow: hidden; }
+        .flow-data { padding: 1.5rem; opacity: 0; transition: opacity 0.3s ease; display: flex; flex-direction: column; gap: 12px; }
+        .flow-content.open .flow-data { opacity: 1; transition-delay: 0.15s; }
+
+        .data-row { display: flex; align-items: flex-start; gap: 16px; font-size: 0.95rem; }
+        .data-label { 
+            font-weight: 600; color: var(--text-main); width: 110px; flex-shrink: 0; 
+            text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;
+        }
+        .data-label svg { width: 14px !important; height: 14px !important; min-width: 14px; min-height: 14px; color: var(--text-muted); flex-shrink: 0;}
+        .data-val { color: var(--text-secondary); flex-grow: 1; }
+        strong { color: var(--text-heading); font-weight: 600; }
+        em { color: var(--accent-crimson); font-style: italic; }
+        .sub-list { margin-top: 0.5rem; padding-left: 1rem; border-left: 2px solid var(--border-light); font-size: 0.9rem; }
+
+        /* --- 8. SMART TOOLTIPS --- */
+        .tt { position: relative; cursor: help; border-bottom: 1px dashed var(--accent-crimson); font-weight: 500; color: var(--text-heading); }
+        .tt::after {
+            content: attr(data-info); position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%) translateY(5px);
+            background: var(--text-heading); color: #fff; padding: 10px 14px; border-radius: 6px; font-size: 0.75rem;
+            white-space: normal; width: max-content; max-width: 240px; text-align: center; line-height: 1.4;
+            opacity: 0; visibility: hidden; transition: 0.2s ease; z-index: 10; font-family: 'Inter', sans-serif;
+            box-shadow: var(--shadow-card); pointer-events: none; font-weight: 400;
+        }
+        .tt::before {
+            content: ''; position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%);
+            border: 6px solid transparent; border-top-color: var(--text-heading);
+            opacity: 0; visibility: hidden; transition: 0.2s ease; z-index: 10; pointer-events: none;
+        }
+        .tt:hover::after, .tt:hover::before { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+
+        /* --- 9. REAL LEAFLET MAP (RIGHT SIDEBAR) FIX --- */
+        .map-sticky { 
+            position: sticky; 
+            top: 100px; 
+            height: calc(100vh - 120px); /* Dynamically stretches to fit viewport */
+            min-height: 400px;
+            max-height: 800px;
+            background: var(--bg-card); 
+            border: 1px solid var(--border-light); 
+            border-radius: 12px; 
+            overflow: hidden; 
+            box-shadow: var(--shadow-card); 
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+        .map-header {
+            padding: 15px; text-align: center; border-bottom: 1px solid var(--border-light);
+            font-size: 0.85rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px;
+            background: var(--bg-page); flex-shrink: 0;
+        }
+        /* Crucial: Flex-grow makes the map take up the remaining height of map-sticky */
+        #real-map { flex-grow: 1; width: 100%; min-height: 300px; z-index: 1; }
+
+        .fab-map { display: none; }
+
+        /* --- 10. RESPONSIVE QUERIES --- */
+        @media screen and (max-width: 1100px) {
+            .layout-container { grid-template-columns: 140px minmax(0, 1fr); gap: 20px; }
+            .map-sticky { display: none; } 
+            .fab-map { 
+                display: flex; justify-content: center; align-items: center; position: fixed; bottom: 20px; right: 20px; 
+                background: var(--text-heading); color: #fff; width: 56px; height: 56px; border-radius: 50%; 
+                box-shadow: var(--shadow-hover); z-index: 999; cursor: pointer; border: none; font-size: 1.5rem;
+            }
+        }
+        @media screen and (max-width: 768px) {
+            .layout-container { grid-template-columns: 1fr; padding: 10px; }
+            .elevator { display: none; }
+            .timeline { padding-left: 1.5rem; margin-bottom: 80px; }
+            .timeline::before { left: 5px; }
+            .timeline-card::before { left: -1.95rem; width: 14px; height: 14px; }
+            .card-content { padding: 1.5rem; }
+            .data-row { flex-direction: column; gap: 4px; margin-bottom: 12px; }
+            .data-label { width: 100%; margin-bottom: 2px; }
+            .tt::after { left: auto; right: 0; transform: translateX(0) translateY(5px); }
+            .tt:hover::after { transform: translateX(0) translateY(0); }
+            .tt::before { left: auto; right: 10px; transform: none; }
+        }
+    </style>
+</head>
+<body data-filter="all">
+
+    <!-- INLINE SVGS -->
+    <svg style="display:none;">
+        <symbol id="icon-king" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></symbol>
+        <symbol id="icon-inscr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 2.5 0 0 1 6.5 2z"/></symbol>
+        <symbol id="icon-battle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M16 16l4 4"/><path d="M19 21l2-2"/></symbol>
+        <symbol id="icon-arch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16"/><path d="M6 18v4"/><path d="M18 18v4"/><path d="M6 18H4v-3h16v3h-2"/><path d="M8 15V9"/><path d="M16 15V9"/><path d="M12 15V9"/><path d="M4 9h16l-8-7-8 7z"/></symbol>
+        <symbol id="icon-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
+        <symbol id="icon-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></symbol>
+        <symbol id="icon-arrow-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></symbol>
+    </svg>
+
+    <!-- FILTER BAR -->
+    <nav class="filter-nav">
+        <button class="filter-btn active" data-target="all">All Content</button>
+        <button class="filter-btn" data-target="king"><span class="dot dot-king"></span>Kings & Admin</button>
+        <button class="filter-btn" data-target="inscr"><span class="dot dot-inscr"></span>Inscriptions & Lit</button>
+        <button class="filter-btn" data-target="battle"><span class="dot dot-battle"></span>Battles</button>
+        <button class="filter-btn" data-target="arch"><span class="dot dot-arch"></span>Religion & Culture</button>
+    </nav>
+
+    <header>
+        <h1>Chronicles of Andhra</h1>
+        <p>The definitive 400-point chronological archive from the Satavahanas to the Imperial Kakatiyas. Extracted word-for-word, mapped sequentially for deep retention.</p>
+    </header>
+
+    <div class="layout-container">
+        
+        <!-- LEFT: ELEVATOR -->
+        <nav class="elevator">
+            <a href="#era-1" class="elevator-link active">1. Early Satavahanas</a>
+            <a href="#era-2" class="elevator-link">2. Middle Satavahanas</a>
+            <a href="#era-3" class="elevator-link">3. Late Satavahanas</a>
+            <a href="#era-4" class="elevator-link">4. Satavahana Admin</a>
+            <a href="#era-5" class="elevator-link">5. The Ikshvakus</a>
+            <a href="#era-6" class="elevator-link">6. Vishnukundins & Co.</a>
+            <a href="#era-7" class="elevator-link">7. E. Chalukyas Pt 1</a>
+            <a href="#era-8" class="elevator-link">8. E. Chalukyas Pt 2</a>
+            <a href="#era-9" class="elevator-link">9. E. Chalukyas Pt 3</a>
+            <a href="#era-10" class="elevator-link">10. Feudatories</a>
+            <a href="#era-11" class="elevator-link">11. Early Kakatiyas</a>
+            <a href="#era-12" class="elevator-link">12. Imperial Kakatiyas</a>
+        </nav>
+
+        <!-- CENTER: TIMELINE -->
+        <main class="timeline">
+
+            <!-- ERA 1 -->
+            <section class="timeline-card filterable f-king" id="era-1" data-lat="19.48" data-lng="75.38" data-city="Pratishthanapuram (Paithan)">
+                <div class="card-content">
+                    <span class="era-badge">200 BCE – 200 CE</span>
+                    <h2>Satavahanas: Genesis & Early Kings</h2>
+                    
+                    <div class="tldr">
+                        <h4>TL;DR Primer</h4>
+                        <ul>
+                            <li>First unified Deccan empire (ruled 400-500 yrs); Official language was Prakrit.</li>
+                            <li>Founded by Mula Purusha Satavahana & Empire King Srimukha.</li>
+                            <li>Satakarni I performed 2 Ashvamedha Yagas, and was the first in India to donate land to Brahmins.</li>
+                        </ul>
+                    </div>
+
+                    <ul class="standard-list">
+                        <li class="filterable f-king"><strong>Origin Theories:</strong> <em>Andhra:</em> P.V. Parabrahma Sastry, Maramanda Ramarao, Gutti Venkatrao, Burgess, Barnett, Gopalachari, V.A. Smith, E.J. Rapson, R.G. Bhandarkar. <em>Maharashtra:</em> P.T. Srinivasa Iyengar, Joglekar, H.C. Raychaudhuri. <em>Vidarbha:</em> V.V. Mirashi. <em>Karnataka:</em> Sukthankar.</li>
+                        <li class="filterable f-inscr"><strong>Literary Evidence:</strong> Bhagavata, Matsya (mentions 30 kings ruled for 450 yrs), Vayu, Vishnu (mentions 17 kings), and Brahmanda Puranas. Mentioned as "Andhras" in Ashoka's 13th Rock Edict.</li>
+                        <li class="filterable f-king"><strong>Capital Shift Theories:</strong> 1. Srikakulam → Dhanyakatakam (Amaravati) → Pratishthanapuram (Paithan) [Burgess & Barnett]. 2. Pratishthanapuram → Dhanyakatakam[V.V. Mirashi, Raychaudhuri, Srinivasa Sastry]. 3. Pratishthanapuram [Gunadhya].</li>
+                    </ul>
+
+                    <div class="flow-container">
+                        <!-- Foundations -->
+                        <div class="flow-node filterable f-king">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-king"/></svg> The Founders</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-king"/></svg> Roots</div><div class="data-val"><em>Mula Purusha:</em> <strong>Satavahana (Sadavahana)</strong> (based on coins, inscriptions, and Somadeva's <em>Kathasaritasagara</em>). <em>Empire Founder/1st King:</em> <strong>Srimukha</strong> (per Puranas).</div></div>
+                            </div></div></div>
+                        </div>
+                        <div class="flow-arrow filterable f-king"><svg><use href="#icon-arrow-down"/></svg></div>
+                        
+                        <!-- Srimukha & Krishna -->
+                        <div class="flow-node filterable f-king f-inscr f-arch">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-king"/></svg> Srimukha & Krishna</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-king"/></svg> Srimukha</div><div class="data-val">Ruled 23 yrs (Matsya Purana). Former Mauryan feudatory. Ashoka gave him title <em>"Raya"</em> and called his lineage <em>"Satyaputras"</em>. Religion: Jainism → Vedic.</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-arch"/></svg> Krishna (Kanha)</div><div class="data-val">Brother of Srimukha. Took throne as Srimukha's son was minor. Bhagavata Religion (Krishna) entered Deccan during his rule.</div></div>
+                            </div></div></div>
+                        </div>
+                        <div class="flow-arrow filterable f-king"><svg><use href="#icon-arrow-down"/></svg></div>
+                        
+                        <!-- Satakarni I -->
+                        <div class="flow-node filterable f-king f-battle f-inscr f-arch">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-king"/></svg> Satakarni I</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-battle"/></svg> Battles</div><div class="data-val">Contemporaries: <span class="tt" data-info="Magadha Ruler">Pushyamitra Sunga</span> & <span class="tt" data-info="Chedi Ruler of Kalinga">Kharavela</span>. Defeated Sunga (issued Ujjain symbol coins). Defeated by Kharavela (recorded in Hathigumpha Inscr - though Indian history credits Kharavela, AP history credits Satakarni).</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-inscr"/></svg> Naneghat</div><div class="data-val">Wife <strong>Naganika</strong> (Princess of Maharathi Ambi, daughter of Tranakariyo) issued Naneghat Inscription in Prakrit detailing his victories.</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-arch"/></svg> Religion</div><div class="data-val">Performed 2 Ashvamedha, 1 Rajasuya. <strong>First in India</strong> to donate land to Brahmins (exactly 13 villages, 36,001 silver coins, 44,000 cows, 1,000 horses, 10 elephants).</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-king"/></svg> Titles</div><div class="data-val">Ekaveera, Dakshinapathapati, Sura, Apratihatachakra (Naneghat); Samrat, Mahan (Puranas); Mallakarna, Gohiranyabhudana.</div></div>
+                            </div></div></div>
+                        </div>
+                        <div class="flow-arrow filterable f-king"><svg><use href="#icon-arrow-down"/></svg></div>
+                        
+                        <!-- Minor Kings -->
+                        <div class="flow-node filterable f-king f-battle">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-king"/></svg> Purnotsunga & Minor Kings</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-battle"/></svg> Purnotsunga</div><div class="data-val">(Also known as Vedasiri). Kharavela attacked Bhattiprolu during his rule.</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-king"/></svg> Minor</div><div class="data-val">Followed by <strong>Skandastambhi</strong>.</div></div>
+                            </div></div></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ERA 2 -->
+            <section class="timeline-card filterable f-king" id="era-2" data-lat="23.47" data-lng="77.73" data-city="Sanchi / Vidisha (Conquest)">
+                <div class="card-content">
+                    <span class="era-badge">Middle Satavahana Era</span>
+                    <h2>Cultural Summits & Language Shifts</h2>
+                    <div class="tldr">
+                        <h4>TL;DR Primer</h4>
+                        <ul>
+                            <li>Satakarni II conquered Magadha, built Sanchi's South Gateway.</li>
+                            <li>Kuntala Satakarni shifted official language to Sanskrit.</li>
+                            <li>Hala initiated the Golden Age of Prakrit literature.</li>
+                        </ul>
+                    </div>
+
+                    <div class="flow-container">
+                        <!-- Satakarni II -->
+                        <div class="flow-node filterable f-king f-battle f-arch f-inscr">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-king"/></svg> Satakarni II</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-battle"/></svg> Conquests</div><div class="data-val">Ruled 56 years. Conquered Magadha and Kalinga (Yuga Purana & Gargi Samhita state he defeated Sungas and ruled Vidisha for 10 yrs). Followed by minor kings <strong>Apilaka</strong> and <strong>Meghaswati</strong>.</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-arch"/></svg> Architecture</div><div class="data-val">Built the Dakshina Torana (South Gateway) to Ashoka's Sanchi Stupa.</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-inscr"/></svg> Inscription</div><div class="data-val">Court artist <strong>Ananda</strong> issued the Sanchi Inscription praising him.</div></div>
+                            </div></div></div>
+                        </div>
+                        <div class="flow-arrow filterable f-king"><svg><use href="#icon-arrow-down"/></svg></div>
+
+                        <!-- Kuntala -->
+                        <div class="flow-node filterable f-king f-inscr f-battle">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-king"/></svg> Kuntala Satakarni</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-inscr"/></svg> Literature</div><div class="data-val">Changed official language from Prakrit to <strong>Sanskrit</strong>. Mentioned in Rajasekhara's <em>Kavya Mimamsa</em>, Gunadhya's <em>Brihatkatha</em>, and Vatsyayana's <em>Kamasutra</em> (wife Malayavati died during dangerous act 'Kari Rata').</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-globe"/></svg> Poets</div><div class="data-val"><strong>Sarvavarma</strong> (Sanskrit, wrote <em>Katantra Vyakaranam</em> in 6 months to teach king, appointed head of Bharukachcha/Broach). <strong>Gunadhya</strong> (Prakrit, wrote <em>Brihatkatha</em> in the forest, which king ordered destroyed).</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-battle"/></svg> Battles</div><div class="data-val">Defeated Shakas (58 BCE), earning title <em>Vikramaditya</em> and starting Vikrama Era.</div></div>
+                            </div></div></div>
+                        </div>
+                        <div class="flow-arrow filterable f-king"><svg><use href="#icon-arrow-down"/></svg></div>
+
+                        <!-- Pulamavi & Hala -->
+                        <div class="flow-node filterable f-king f-inscr f-battle">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-king"/></svg> Pulamavi I & Hala (17th King)</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-battle"/></svg> Pulamavi I</div><div class="data-val">Destroyed the Kanva dynasty by killing King Susharma.</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-inscr"/></svg> Hala</div><div class="data-val">First "Kaviraja" in South India. Title: <em>Kavivatsala</em>. Married Sri Lankan princess Lilavati at Sapta Godavari (recorded in <em>Lilavati Parinayam</em> by Kutuhala). Golden Age of Prakrit. Authored <em>Gatha Saptasati</em> (700 stories, begins with Shiva Stotram).</div></div>
+                            </div></div></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ERA 3 -->
+            <section class="timeline-card filterable f-king" id="era-3" data-lat="16.57" data-lng="80.31" data-city="Amaravati">
+                <div class="card-content">
+                    <span class="era-badge">Late Satavahana Era</span>
+                    <h2>Gautamiputra & The Final Epoch</h2>
+                    
+                    <div class="tldr">
+                        <h4>TL;DR Primer</h4>
+                        <ul>
+                            <li>Gautamiputra revived the empire, killed Shaka Nahapana.</li>
+                            <li>Yajna Sri patronized Acharya Nagarjuna (Mahayana Buddhism).</li>
+                            <li>Empire ended under Pulamavi IV due to Ikshvaku revolt.</li>
+                        </ul>
+                    </div>
+
+                    <div class="flow-container">
+                        <!-- Gautamiputra -->
+                        <div class="flow-node filterable f-king f-battle f-inscr">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-king"/></svg> Gautamiputra Satakarni (23rd)</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-globe"/></svg> Facts</div><div class="data-val">Greatest ruler. Wife: Vashishti. Started metronymic tradition. Started Salivahana Era (78 CE).</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-battle"/></svg> Battles</div><div class="data-val">Battle of Jogalthambi: Killed Shaka ruler Nahapana (Kshaharata dynasty) and restruck his silver coins.</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-inscr"/></svg> Inscription</div><div class="data-val">Mother <strong>Gautami Balasri</strong> issued the <strong>Nasik Prasasti</strong>.</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-king"/></svg> Titles</div><div class="data-val"><span class="tt" data-info="Tri-samudra-toya-pita-vahana: Whose horses drank water of 3 oceans">Trisamudratoyapitavahana</span>, Dakshinasamudradhiswara, <span class="tt" data-info="Shaka-yavana-pahlava-nisudhana: Destroyer of Shakas, Yavanas, Pahlavas">Shakayavanapahlavanisudhana</span>, Dwijakulavardhana, Ekabrahmana, Agamanilaya, Kshatriyadarpanamanamardana, Varnasankaryanirodhaka, Ekadhanurdhara, Ekasura, Benakatakaswami, <span class="tt" data-info="Destroyer of the Kshaharata lineage">Kshaharata Vamsa Niravaseshakara</span>. Followed Vedic religion, encouraged Buddhism.</div></div>
+                            </div></div></div>
+                        </div>
+                        <div class="flow-arrow filterable f-king"><svg><use href="#icon-arrow-down"/></svg></div>
+
+                        <!-- Pulamavi II & Sivasri -->
+                        <div class="flow-node filterable f-king f-battle f-inscr">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-king"/></svg> Pulamavi II & Sivasri</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-battle"/></svg> Pulamavi II</div><div class="data-val">(Vashishtiputra). Titles: Dakshinapatheswara, Navanagara Swami. Shifted capital to Amaravati. Defeated by Shaka <span class="tt" data-info="Issued the Junagadh/Girnar Inscription (India's 1st Sanskrit/Brahmi Inscr)">Rudradaman</span>.</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-king"/></svg> Sivasri</div><div class="data-val">Vashishtiputra Sivasri married Rudradaman's daughter. Title: <em>Kshatrapa</em>.</div></div>
+                            </div></div></div>
+                        </div>
+                        <div class="flow-arrow filterable f-king"><svg><use href="#icon-arrow-down"/></svg></div>
+
+                        <!-- Yajna Sri -->
+                        <div class="flow-node filterable f-king f-inscr f-arch">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-king"/></svg> Yajna Sri Satakarni</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-globe"/></svg> Facts</div><div class="data-val">Last great ruler. Commander: Bhavagopa. Issued Chinnaganjam inscr. Banabhatta's <em>Harshacharita</em> calls him Trisamudradhiswara. Matsya Purana compiled.</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-arch"/></svg> Nagarjuna</div><div class="data-val">Patronized <strong>Acharya Nagarjuna</strong> (born in Vedali, Indian Einstein/2nd Buddha/Tathagata/Indian Martin Luther). Founder of Mahayana. Yajna built the Mahavihara (1500 rooms, 7 floors) at Sriparvata for him.</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-inscr"/></svg> Literature</div><div class="data-val">Nagarjuna wrote: <em>Suhru Lekhanam</em> (letters to Yajna Sri), <em>Prajnaparamita Sastra</em>, <em>Mula Madhyamaka Sastra</em>, <em>Sunya Saptasati</em>, <em>Lalitavistara</em>, <em>Karandavyuha</em>, <em>Sabhavativyuha</em>. Somadeva's <em>Kathasaritasagaram</em> claims Yajna Sri's son (Yuvaraja) killed Nagarjuna.</div></div>
+                            </div></div></div>
+                        </div>
+                        <div class="flow-arrow filterable f-king"><svg><use href="#icon-arrow-down"/></svg></div>
+
+                        <!-- The Decline -->
+                        <div class="flow-node filterable f-king f-inscr f-battle">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-king"/></svg> The Decline</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-arch"/></svg> Vijaya Sri</div><div class="data-val">Built Vijayapuri near Sriparvata.</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-inscr"/></svg> Chanda Sri</div><div class="data-val">Issued Kodavali inscription.</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-battle"/></svg> Pulamavi IV</div><div class="data-val">Last ruler (Pulamavi III/IV). Issued Myakadoni (Bellary), Holehasan (Dharwad), Adoni (West AP) inscriptions. Overthrown by feudatory Sri Chantamula (Ikshvaku) and fled to Bellary.</div></div>
+                            </div></div></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ERA 4 -->
+            <section class="timeline-card filterable f-king" id="era-4" data-lat="16.57" data-lng="80.31" data-city="Amaravati">
+                <div class="card-content">
+                    <span class="era-badge">Satavahana Society</span>
+                    <h2>Admin, Economy & 19 Guilds</h2>
+                    
+                    <ul class="standard-list">
+                        <li class="filterable f-king"><strong>Administration:</strong> Kingdom → <em>Aharas</em> (headed by Amatyas) → <em>Nagaras</em> (headed by Nigama Sabha: 30 members, 6 committees of 5) → <em>Gramas</em> (headed by Gramini/Gulmika).</li>
+                        <li class="filterable f-king"><strong>Officials:</strong> Mahakaryaka (village dispute solver), Rajukas (judges/judicial), Rajjugahakudu (land surveyor), Gahapatis (caste heads).</li>
+                        <li class="filterable f-king"><strong>Economy & Trade:</strong> Land tax 1/6th. Artisan tax: <em>Kurukara</em>. Produced "Wootz" steel (evidence in Kondapur, Medak). Foreign traders called <em>Sardhavahulu</em>. Coins: Lead, Potin, Silver (Karshapanas), Gold (Suvarna). 1 Suvarna = 35 Karshapanas.</li>
+                        <li class="filterable f-king"><strong>Agricultural Tools:</strong> Udaga yantram (ploughing), Ghati yantram (water lifting), Garika yantram (cotton ginning - invented by <strong>Rakkasi Lothai</strong> under Pulamavi II).</li>
+                        <li class="filterable f-king"><strong>19 Guilds (Srenis):</strong> Functioned as banks charging exactly 12% interest. Headed by Setti/Sreshti. 
+                            <div class="sub-list">
+                                <em>All 19 Guilds:</em> Kolikalu (weavers), Tilapishtakulu/Telikavaru (oil pressers), Kasakarulu (bronze smiths), Kularulu (potters), Tesakarulu (polishers), Kamarulu (blacksmiths), Halikulu (farmers), Veja (doctors), Udayantrikulu (machine makers), Kanchukulu (palace guards), Kubjalu (elephant caretakers), Pratiharalu (door keepers), Chankukarulu (leather), Gadhikulu (perfumes), Suvarnakarulu (goldsmiths), Vadakulu (carpenters), Selavadakulu (sculptors), Pasakarulu (bamboo/basket), Dhanyakulu (grain merchants).
+                            </div>
+                        </li>
+                        <li class="filterable f-arch f-inscr"><strong>Culture:</strong> Oldest Buddhist stupa in AP: Bhattiprolu. Dhanyakatakam called <em>Purvasailam</em> in Buddhist literature. Educational institutes called <em>Ghatikas</em>. Aryadeva wrote <em>Chittashuddi Prakaranam</em>. Acharya Kundakunda wrote <em>Samayasaram</em>.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- ERA 5 -->
+            <section class="timeline-card filterable f-king" id="era-5" data-lat="16.52" data-lng="79.23" data-city="Vijayapuri">
+                <div class="card-content">
+                    <span class="era-badge">220 CE – 300 CE</span>
+                    <h2>The Ikshvakus (Sri Parvatiya Andhras)</h2>
+                    <div class="tldr">
+                        <h4>TL;DR Primer</h4>
+                        <ul>
+                            <li>Sri Chantamula secured independence; Ehuvala built the 1st South Indian Hindu temples.</li>
+                            <li>Virapurushadatta fostered AP's Buddhist Golden Age.</li>
+                            <li>Introduced 'Veeragal' (suicide guards) & grandfather-naming traditions.</li>
+                        </ul>
+                    </div>
+
+                    <ul class="standard-list">
+                        <li class="filterable f-king"><strong>Basics:</strong> Capital: Vijayapuri. Emblem: Lion. Mentioned in Bhavishya Purana. Divided kingdom into Rashtras (headed by Mahatalavaras). 5 villages = Grama Panchaka. Started 'Veeragal' and grandfather-naming traditions.</li>
+                        <li class="filterable f-king"><strong>Origins:</strong> North India (Rapson, Buhler), Karnataka (Vogel, Sten Konow), Tamil Nadu (Gopalachari), Coastal Krishna (Caldwell - <strong>most accepted</strong>).</li>
+                        <li class="filterable f-king"><strong>Guild Leaders:</strong> Ulikapramukha (handloom), <em>Pusina Sreni</em> (sweets), <em>Parnika Sreni</em> (betel leaves).</li>
+                    </ul>
+
+                    <div class="flow-container">
+                        <!-- Sri Chantamula -->
+                        <div class="flow-node filterable f-king f-inscr f-battle">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-king"/></svg> Sri Chantamula</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-battle"/></svg> Facts</div><div class="data-val">(Vasishthiputra). Founder. Defeated Pulamavi IV. Devotee of Kartikeya/Virupaksha. Performed Ashvamedha, Agnistoma, Agnihotra, Vajapeya, Mahakrutuvu.</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-inscr"/></svg> Inscriptions</div><div class="data-val">Issued Rentala, Dachepalli, Kesanapalli.</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-king"/></svg> Titles</div><div class="data-val">Maharaja, Sata Sahasra Halaka (donating agriculture tools/cows), Mahadanadhipati (donating agraharas), <span class="tt" data-info="A-pra-ti-ha-ta-san-ka-pa-na: Unstoppable resolve">Apratihatasankapana</span>.</div></div>
+                            </div></div></div>
+                        </div>
+                        <div class="flow-arrow filterable f-king"><svg><use href="#icon-arrow-down"/></svg></div>
+                        
+                        <!-- Virapurushadatta -->
+                        <div class="flow-node filterable f-king f-arch">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-king"/></svg> Virapurushadatta</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-arch"/></svg> Buddhism</div><div class="data-val">Only king to embrace Buddhism. "Golden Age of Buddhism in AP". Called "South Indian Ashoka". Built India's 1st Buddhist Univ (Sri Parvata). Issued Alluri Inscr. Fought strictly zero wars.</div></div>
+                            </div></div></div>
+                        </div>
+                        <div class="flow-arrow filterable f-king"><svg><use href="#icon-arrow-down"/></svg></div>
+                        
+                        <!-- Ehuvala -->
+                        <div class="flow-node filterable f-king f-arch f-inscr">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-king"/></svg> Ehuvala Chantamula</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-arch"/></svg> Temples</div><div class="data-val"><strong>First to build Hindu temples in South India.</strong> Built Pushpabhadra Narayana, Kartikeya, Nodigiswara (Nandikeswara), and Devi temples at Nagarjunakonda. Commander Elisiri built Kumaraswami temple at Yeleswaram (Nalgonda).</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-inscr"/></svg> Inscriptions</div><div class="data-val">Issued Nagarjunakonda Inscr (<strong>First Sanskrit Inscription in South India</strong>).</div></div>
+                            </div></div></div>
+                        </div>
+                        <div class="flow-arrow filterable f-king"><svg><use href="#icon-arrow-down"/></svg></div>
+                        
+                        <!-- Rudrapurushadatta -->
+                        <div class="flow-node filterable f-king f-battle f-arch">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-king"/></svg> Rudrapurushadatta</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-battle"/></svg> The End</div><div class="data-val">Last ruler. Built Pushpabhadra Narayana. Defeated by Pallava King <span class="tt" data-info="Founder of Pallavas">Simhavarma</span>, ending the dynasty (Manchikallu Inscription).</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-globe"/></svg> Culture</div><div class="data-val">Sivasena (commander of Abhira king Sakasena) built Ashtabhuja Narayana Swamy Temple (1st Vaishnava temple in AP). Harathi temple visited for fertility (offered bangles). Bhavaviveka wrote <em>Tarkajwala, Karataratna, Prajnapradeepa</em>.</div></div>
+                            </div></div></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ERA 6 -->
+            <section class="timeline-card filterable f-king" id="era-6" data-lat="16.80" data-lng="81.11" data-city="Vengi / Pedavegi">
+                <div class="card-content">
+                    <span class="era-badge">300 CE – 624 CE</span>
+                    <h2>Contemporaries & Vishnukundins</h2>
+                    
+                    <ul class="standard-list">
+                        <li class="filterable f-king f-battle f-inscr"><strong>Salankayanas:</strong> Capital: Vengi (Pedavegi). Mula Purusha: Vijayadevavarma. Founder: <strong>Hastivarma</strong> (defeated by <span class="tt" data-info="Gupta Emperor">Samudragupta</span>; Allahabad Pillar calls him <em>Vaingeyaka</em>). Deity: Chitrarathaswami (Sun). Issued Pedavegi & Guntupalli. Kings: Hastivarma → Nandivarma I (killed by Devavarma) → Devavarma (killed by Achandavarma) → Achandavarma → Vijayanandivarma (Nandivarma II). Conquered Anandas, ended by Vishnukundins (Madhavavarma III).</li>
+                        <li class="filterable f-king"><strong>Ananda Gotras:</strong> Capital: Kandarapuram (Kandara rulers). Emblem: Vrushabham/Nandi. Victory banner: Golungula (Monkey). Defeated by Salankayanas.</li>
+                        <li class="filterable f-king f-arch f-inscr"><strong>Vishnukundins:</strong> Language: Sanskrit. Emblem: Lion (Kesari). Admin: <em>Vishayas</em>. Land measured in <em>Nivartanas</em>. Built cave temples (Mogalrajapuram, Undavalli - Anantha Padmanabha Swamy statue).
+                            <div class="sub-list">
+                                • <em>Indravarma:</em> Founder. Title: Priyaputra. Issued Ramatirtham.<br>
+                                • <em>Order:</em> Indravarma → Madhavavarma I → Govindavarma → Madhavavarma II → Vikramendravarma I & II.<br>
+                                • <em>Madhavavarma II (Greatest):</em> Defeated Salankayanas/Anandas. Shifted capital: Amarapuram → Indrapalanagaram → Denduluru (Vengi). Titles: Trivaranagara Bhavana Sundari, Janasraya, Trimudradhipati.<br>
+                                • <em>Inscriptions:</em> Tummalagudem, Chaitanyapuri, Khanapur.<br>
+                                • <em>Telugu Milestones:</em> First Telugu word <strong>'Nagabu'</strong> (Amaravati). First sentence <strong>'Vijaya Rajya Samvatsarambul'</strong> (Chikkulla).
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- ERA 7 -->
+            <section class="timeline-card filterable f-king" id="era-7" data-lat="16.80" data-lng="81.11" data-city="Vengi">
+                <div class="card-content">
+                    <span class="era-badge">624 CE – 9th Century</span>
+                    <h2>Eastern Chalukyas: Genesis</h2>
+                    <p class="intro">Western Chalukya Pulakesin II defeated Vishnukundins, Prithvimula, & Kalingas, gave Vengi to brother Kubja Vishnuvardhana. Admin: Rashtras → Vishayas → Gramas. Tax: 1/6 (Gramakutudu). Emblem: Varaham. Language: Sanskrit. Capitals: Pistapuram → Vengi → Rajahmundry.</p>
+
+                    <div class="flow-container">
+                        <!-- Kubja -->
+                        <div class="flow-node filterable f-king f-arch f-inscr">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-king"/></svg> Kubja Vishnuvardhana</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-globe"/></svg> Facts</div><div class="data-val">Founder. Titles: Vishamasiddhi, Maharaja (Timmapuram inscr), Makaradhwaja, Kamadeva. Issued Chezerla inscription (>50% Telugu poems). Built Kunti Madhava (Pithapuram).</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-arch"/></svg> Culture</div><div class="data-val">Wife Ayyana Mahadevi built <em>Nedumbasadi</em> (Jain rest house in Vijayawada for Kavururi Jains); Kubja donated Mushinikonda village. <span class="tt" data-info="Chinese pilgrim">Hiuen Tsang</span> visited Dhanyakatakam for 2 yrs, studying Tripitakas from Subhuti & Surya. He noted Buddhism's decline, violent locals, and visited Kalinganagara.</div></div>
+                            </div></div></div>
+                        </div>
+                        <div class="flow-arrow filterable f-king"><svg><use href="#icon-arrow-down"/></svg></div>
+                        
+                        <!-- Successors -->
+                        <div class="flow-node filterable f-king f-inscr">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-king"/></svg> Jayasimha I to Vishnuvardhana II</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-king"/></svg> Jayasimha I</div><div class="data-val">(Vallabha). Titles: Sarvalokasraya, Sarvasiddhi, Prithvi Vallabha. Shifted capital to Vengi. Founded Sarvasiddhi. Issued Vipparla Inscr. Defeated Boya kings (Pedamaddali Inscr).</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-king"/></svg> Indra Bhattaraka</div><div class="data-val">Ruled 7 days. Title: Tyagathenu. Issued Kondanaguru.</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-king"/></svg> Vishnu II</div><div class="data-val">Title: Pralayaditya. Issued Reyuru. Followed by Mangi Yuvaraja (Samastabhuvanasraya) & Jayasimha II (Niravadya).</div></div>
+                            </div></div></div>
+                        </div>
+                        <div class="flow-arrow filterable f-king"><svg><use href="#icon-arrow-down"/></svg></div>
+                        
+                        <!-- Rashtrakuta Feud -->
+                        <div class="flow-node filterable f-king f-battle">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-battle"/></svg> The Rashtrakuta Feud Begins</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-king"/></svg> Vishnu III</div><div class="data-val">Restored Nedumbasadi. Pallava conflict began.</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-battle"/></svg> Vijayaditya I</div><div class="data-val"><span class="tt" data-info="Founder of Rashtrakutas">Dantidurga</span> overthrew Badami Chalukyas to form Rashtrakutas. Feud begins.</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-battle"/></svg> Vishnu IV</div><div class="data-val">Supported Govinda I, but defeated by Rashtrakuta Dhruva I (mentioned in Pampa's <em>Vikramarjuna Vijayam</em>). Married his daughter to Dhruva I.</div></div>
+                            </div></div></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ERA 8 -->
+            <section class="timeline-card filterable f-king" id="era-8" data-lat="16.80" data-lng="81.11" data-city="Vengi">
+                <div class="card-content">
+                    <span class="era-badge">9th – 10th Century CE</span>
+                    <h2>Eastern Chalukyas: Golden Age</h2>
+                    
+                    <div class="flow-container">
+                        <!-- Vijayaditya II -->
+                        <div class="flow-node filterable f-king f-battle f-arch">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-king"/></svg> Vijayaditya II</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-battle"/></svg> Battles</div><div class="data-val">Overthrown by Rashtrakuta <span class="tt" data-info="Rashtrakuta King">Govinda III</span> & Bhima Saluki. Fled to Bezawada (named after him). Returned after 12 yrs. Fought 108 battles. (Sataluru inscr by grandson). Title: <em>Narendra Mrigaraja</em>.</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-arch"/></svg> Temples</div><div class="data-val">Built 108 Narendra Mrigeswara temples.</div></div>
+                            </div></div></div>
+                        </div>
+                        <div class="flow-arrow filterable f-king"><svg><use href="#icon-arrow-down"/></svg></div>
+                        
+                        <!-- Gunaga Vijayaditya III -->
+                        <div class="flow-node filterable f-king f-battle f-inscr">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-king"/></svg> Gunaga Vijayaditya III (Greatest)</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-king"/></svg> Titles</div><div class="data-val">Gunakenalla (beautiful by character), Ranaranga Sudraka, Tripuramartya Maheswara, Parachakrarama, Bhuvanakandarpa, Dakshinapathapati, Prithvi Vallabha, Samadhigata Panchamahashabda.</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-battle"/></svg> Wars</div><div class="data-val">Defeated by <span class="tt" data-info="Rashtrakuta King">Amoghavarsha</span> (Vengavalli) then defeated <span class="tt" data-info="Rashtrakuta King">Krishna II</span> (capturing Kiranapura, Achalapura, Tripurapura). Issued Sataluru.</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-inscr"/></svg> Panduranga</div><div class="data-val">Chief Commander (alongside Kadiyaraju, Vinayadi Sharma, Rajaditya). Conquered Boya Kottas, built Pandurangapuram, built Panduranga Maheswaralayam, issued <strong>Addanki Inscription</strong> (1st Telugu poetry).</div></div>
+                            </div></div></div>
+                        </div>
+                        <div class="flow-arrow filterable f-king"><svg><use href="#icon-arrow-down"/></svg></div>
+                        
+                        <!-- Chalukya Bhima I -->
+                        <div class="flow-node filterable f-king f-battle f-arch f-inscr">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-king"/></svg> Chalukya Bhima I</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-battle"/></svg> Crisis</div><div class="data-val">Captured by Baddena ("like crocodile in water" - Pampa's <em>Vikramarka Vijayam</em>). Rescued by Mudigonda's Kusumedhudu/Kusumayudha (Title: Vengi Bandhavimukti - Korivi inscr). Battle of Niravadyapura (Nidadavole): son Iramartiganda & Rashtrakuta Gundaya died. Fought 360 battles (Pithapuram inscr by Mallapadeva).</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-arch"/></svg> Pancharamas</div><div class="data-val">Built 5 Shiva temples (Kumarabhemeswara, Bhimeswara, Someswara, Ksheeraramalingeswara, Amareswara). Founded Chalukya Bhimavaram. Commander Chattappa built Pardheswara.</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-inscr"/></svg> Legacy</div><div class="data-val">Donated Attili to singer Challavva (Title: Gandharva Vidya Visarada). Court Poet: Vamana/Bhatta Vamana (wrote <em>Kavyalankara Sutra</em>, title Kavivrushabha).</div></div>
+                            </div></div></div>
+                        </div>
+                        <div class="flow-arrow filterable f-king"><svg><use href="#icon-arrow-down"/></svg></div>
+                        
+                        <!-- Instability -->
+                        <div class="flow-node filterable f-king f-battle f-inscr">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-king"/></svg> Era of Instability</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-globe"/></svg> Kings</div><div class="data-val"><strong>Vijayaditya IV:</strong> (Kollabiganda, fought Viraja against Kalinga Vajrahasta I). <strong>Amma I:</strong> (Alt founder of Rajahmundry). <strong>Kanthakavi Vijayaditya:</strong> (Ruled exactly 15 days). <strong>Bhima Raja:</strong> (8 months anarchy per Maliyampudi). <strong>Yuddhamalla II:</strong> (Built Kartikeyalayam, Bezawada inscr, feudatory Nannechoda translated Kumarasambhavam).</div></div>
+                            </div></div></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ERA 9 -->
+            <section class="timeline-card filterable f-king" id="era-9" data-lat="17.00" data-lng="81.78" data-city="Rajahmundry">
+                <div class="card-content">
+                    <span class="era-badge">10th – 12th Century CE</span>
+                    <h2>Eastern Chalukyas: Decline & Chola Merger</h2>
+                    
+                    <div class="flow-container">
+                        <!-- Amma II & Danarnava -->
+                        <div class="flow-node filterable f-king f-battle">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-king"/></svg> Amma Raja II & Danarnava</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-globe"/></svg> Amma II</div><div class="data-val">Titles: Bhattadeva, Madhava Bhattu, Parama Brahmana. Patronized Jains (Kaluchumburru inscr) requested by wife Chamekamba. Kalamukha Shaivism entered.</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-battle"/></svg> Danarnava</div><div class="data-val">Killed Amma II with Kakatiya Gundana's help. Issued Magallu inscr. Title: Rajanarayana. Built Mandavya Narayana. Killed by Jata Choda Bhima. (Note: Tailapa II killed Rashtrakuta Kokkaraja II to form Kalyani Chalukyas).</div></div>
+                            </div></div></div>
+                        </div>
+                        <div class="flow-arrow filterable f-king"><svg><use href="#icon-arrow-down"/></svg></div>
+                        
+                        <!-- Chola Intervention -->
+                        <div class="flow-node filterable f-king f-battle f-inscr">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-battle"/></svg> Chola Intervention</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-battle"/></svg> Jata Choda</div><div class="data-val">Telugu Choda. Title: Choda Trinetrudu. Defeated by Rajaraja Chola (Kailasanatha inscr details takeover).</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-king"/></svg> Saktivarma</div><div class="data-val">Crowned by Cholas. Title: Chalukya Chandra (coins in Burma). Vengi became a Chola-Kalyani battlefield. Issued Prabuparru.</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-arch"/></svg> Vimaladitya</div><div class="data-val">Titles: Rajamartanda, Mummadi Bhima. Shaiva -> Jain (influenced by Trikalayogi Siddhanti, per Ranastapudi). Built Ramakonda. Married Kundavva (Chola) & Melamma.</div></div>
+                            </div></div></div>
+                        </div>
+                        <div class="flow-arrow filterable f-king"><svg><use href="#icon-arrow-down"/></svg></div>
+                        
+                        <!-- Rajaraja Narendra -->
+                        <div class="flow-node filterable f-king f-inscr">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-king"/></svg> Rajaraja Narendra</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-battle"/></svg> Politics</div><div class="data-val">Crowned via Rajendra Chola. Defeated Vijayaditya VII (Battle of Kalidindi). Made vassal by Kalyani Chalukya Someswara, who appointed Narayana Bhattu. Founded Rajahmundry. Title: Kavyagita Pritiparudu.</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-inscr"/></svg> Nannaya</div><div class="data-val">Adikavi, Vagasasanudu, Vidyadayityudu. Translated 2.5 parvas of Mahabharata. Wrote <em>Andhra Shabda Chintamani</em> in Sanskrit. Wrote <em>Indra Vijayam</em> & <em>Chamundeswari Vilasam</em> in Telugu.</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-inscr"/></svg> Mallanna</div><div class="data-val">Pavuluri Mallanna (Sukavi, Satkalishudu) translated <em>Ganitasara Sangraham</em> (1st Telugu science book).</div></div>
+                            </div></div></div>
+                        </div>
+                        <div class="flow-arrow filterable f-king"><svg><use href="#icon-arrow-down"/></svg></div>
+                        
+                        <!-- The End -->
+                        <div class="flow-node filterable f-king">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-king"/></svg> Rajendra II (Kulottunga Chola I)</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-globe"/></svg> Facts</div><div class="data-val">Married Madhurantakini. Founded Kulottunga Cholapuram (Vizag). Jayagondar wrote <em>Kalinga Parani</em>. Handed Vengi to his uncle <strong>Vijayaditya VII (Last Ruler)</strong>.</div></div>
+                            </div></div></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ERA 10 -->
+            <section class="timeline-card filterable f-king" id="era-10" data-lat="16.02" data-lng="80.60" data-city="Chandole">
+                <div class="card-content">
+                    <span class="era-badge">11th – 12th Century CE</span>
+                    <h2>Vengi Feudatories</h2>
+                    <ul class="standard-list">
+                        <li class="filterable f-king f-battle"><strong>Velanati Cholas/Chodas:</strong> Capital: Chandole. Called Andhra "Swabhagini Vishayam" (Relatives' land). Mula purusha: Gonkaraja I. Independence: Gonkaraja II. <em>Battle of Draksharama:</em> Yuvaraja Rajendra II killed Kakatiya Prola II. Poet Manchena (*Keyurabahu Charitam*). Last king Prithviswara killed by Kakatiya Ganapatideva.</li>
+                        <li class="filterable f-king"><strong>Kona Haihayas:</strong> Capital: Rakuduru. Founder: Kirtiraja. First in AP history to introduce <strong>Dual Kingship</strong> (Mummadi Bhima II & Satyaraja).</li>
+                        <li class="filterable f-king f-arch"><strong>Palnati Haihayas:</strong> Capital: Gurazala. Founder: Betaraja (Titles: Haihaya Rajya Pratishtakara, Sanivara Siddhi). Anuguraja's sons: Nalagama & Malideva. Ministers: Nagamma (Shaiva, built Virabhadra) & Brahma Naidu (Veera Vaishnava founder, built Chennakeshava).</li>
+                        <li class="filterable f-battle f-inscr"><strong>The Palnadu War (1176-1182 CE):</strong> Fought between Nalagama (supported by Kakatiya Prataparudra I & Nagamma) and Malideva (supported by Brahma Naidu). Began after a cockfight exile. Nalagama won. Recorded by Srinatha (*Palnati Veera Charitra*) and Mudugu Virabhadra Kavi (*Palnati Virabhagavatam*).</li>
+                        <li class="filterable f-inscr"><strong>Konidena Cholas:</strong> King Nannechoda was the 1st "Kaviraja" in Telugu (translated *Kumarasambhavam*).</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- ERA 11 -->
+            <section class="timeline-card filterable f-king" id="era-11" data-lat="18.00" data-lng="79.58" data-city="Warangal (Orugallu)">
+                <div class="card-content">
+                    <span class="era-badge">995 CE – 1157 CE</span>
+                    <h2>The Early Kakatiyas (Vassals)</h2>
+                    
+                    <ul class="standard-list">
+                        <li class="filterable f-king f-inscr"><strong>Basics:</strong> Durjaya Clan (per Bayyaram). Emblem: Varaham. Capitals: Hanumakonda → Orugallu. Language: Sanskrit. Mula Purusha: <strong>Kakatiya Gundana</strong> (Magallu Inscr) or <strong>Venna Bhupati</strong> (Bayyaram Inscr).</li>
+                    </ul>
+
+                    <div class="flow-container">
+                        <!-- Beta I & Prola I -->
+                        <div class="flow-node filterable f-king f-inscr f-arch">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-king"/></svg> Beta Raja I & Prola Raja I</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-king"/></svg> Beta I</div><div class="data-val">Son of Gundana. Titles: <span class="tt" data-info="Sa-man-ta-vish-ti-vam-sa-ka-ka-ti-pu-ra-dhi-na-tha">Samantavishtivamsakakatipuradhinatha</span>, Chodakshmapala. Minister Naranayya renovated Yuddhamalla Jain temple (Sanigaram Inscr).</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-arch"/></svg> Prola I</div><div class="data-val">Titles: Arigajakesari, Samadhigatapanchamahashabda. Built Kesamudram and Jagatakesarisamudram lakes.</div></div>
+                            </div></div></div>
+                        </div>
+                        <div class="flow-arrow filterable f-king"><svg><use href="#icon-arrow-down"/></svg></div>
+                        
+                        <!-- Beta II & Durga -->
+                        <div class="flow-node filterable f-king f-arch f-inscr">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-king"/></svg> Beta Raja II & Durga Raja</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-king"/></svg> Beta II</div><div class="data-val">Titles: Vikramachakra, Tribhuvanamalla. Issued Kazipet Inscr. Minister Vaija Dandanadhudu (statesman). Built Beteswara. Initiated to Kalamukha Shaivism by Rameswara Pandita.</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-globe"/></svg> Durga Raja</div><div class="data-val">Donated Beteswara to Rameswara Pandita.</div></div>
+                            </div></div></div>
+                        </div>
+                        <div class="flow-arrow filterable f-king"><svg><use href="#icon-arrow-down"/></svg></div>
+                        
+                        <!-- Prola II -->
+                        <div class="flow-node filterable f-king f-battle f-arch">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-king"/></svg> Prola Raja II (Greatest Early)</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-globe"/></svg> Facts</div><div class="data-val">Planted victory pillar at Srisailam. Title: Daridraya Bhadravana (for agriculture). Built Swayambhu temple. Minister Betanamatya's wife Mailama built Kadalalalaya Basadi.</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-battle"/></svg> Death</div><div class="data-val">Killed in Battle of Draksharama by Velanati Rajendra II.</div></div>
+                            </div></div></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ERA 12 -->
+            <section class="timeline-card filterable f-king" id="era-12" data-lat="18.00" data-lng="79.58" data-city="Warangal">
+                <div class="card-content">
+                    <span class="era-badge">1158 CE – 1323 CE</span>
+                    <h2>The Imperial Kakatiyas</h2>
+
+                    <div class="flow-container">
+                        <!-- Rudradeva -->
+                        <div class="flow-node filterable f-king f-battle f-arch f-inscr">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-king"/></svg> Rudradeva (Prataparudra I)</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-globe"/></svg> Independence</div><div class="data-val">Declared independence in 1162 CE (Hanumakonda Inscr by Achitendra). Issued Ganapavaram Inscr. Titles: Vinayabhushana, Kavi Bhasha Poshaka. Authored <em>Nitisaram</em> (Sanskrit).</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-arch"/></svg> Dev</div><div class="data-val">Built Rudrasamudra lake, 1000 Pillar Temple. Shifted capital to Orugallu. Minister Gangadhara built Prasanna Kesavalayam. Commander Kota Senani captured Dharanikota.</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-battle"/></svg> Wars</div><div class="data-val">Supported Nalagama in Palnadu War. Killed by Yadava King Jaitugi (recorded in Hemadri's <em>Chaturvarga Sara Grandham</em>).</div></div>
+                            </div></div></div>
+                        </div>
+                        <div class="flow-arrow filterable f-king"><svg><use href="#icon-arrow-down"/></svg></div>
+                        
+                        <!-- Mahadeva -->
+                        <div class="flow-node filterable f-king f-battle f-inscr">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-king"/></svg> Mahadeva</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-globe"/></svg> Facts</div><div class="data-val">Brother of Rudradeva. Wife: Bayyambika. Children: Ganapatideva, Mailamba (issued <strong>Bayyaram Inscr</strong>), Kundamamba. Guru: Dhruveswara. Killed by Jaitugi. Ganapati taken hostage.</div></div>
+                            </div></div></div>
+                        </div>
+                        <div class="flow-arrow filterable f-king"><svg><use href="#icon-arrow-down"/></svg></div>
+                        
+                        <!-- Ganapatideva -->
+                        <div class="flow-node filterable f-king f-battle">
+                            <button class="flow-btn">
+                                <div class="flow-btn-left"><svg class="inline-icon"><use href="#icon-king"/></svg> Ganapatideva</div>
+                                <svg class="chevron"><use href="#icon-chevron"/></svg>
+                            </button>
+                            <div class="flow-content"><div class="flow-inner"><div class="flow-data">
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-globe"/></svg> Facts</div><div class="data-val">Released by Jaitugi's son Singhana (Title: Telungaraya Sthapanacharya) as a buffer state. Ruled 63 yrs. Ganapati's titles: Andhradhishudu, Prithviswara, Krida Vinoda, Chodakataka Churakara, Sakaladesa Pratishtapanacharya. Defeated Velanati Prithviswara.</div></div>
+                                <div class="data-row"><div class="data-label"><svg class="icon"><use href="#icon-battle"/></svg> Recharla Rudra</div><div class="data-val">Commander who saved the kingdom from crisis during Ganapati's capture. Titles: Kakatiya Rajya Bhara Dhaureya, Kakatiya Rajya Samarthudu.</div></div>
+                            </div></div></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- RIGHT: REAL LEAFLET MAP (FIXED) -->
+        <aside class="map-sticky">
+            <div class="map-header">Historical Capital Tracker</div>
+            <!-- Leaflet Map Container -->
+            <div id="real-map"></div>
+        </aside>
+
+    </div>
+
+    <!-- Mobile FAB for Map -->
+    <button class="fab-map" id="mobileMapBtn">🗺️</button>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- 1. REAL LEAFLET MAP INITIALIZATION ---
+            // Center roughly on Deccan plateau
+            const map = L.map('real-map', { 
+                zoomControl: false,
+                scrollWheelZoom: false, // Prevents page scrolling issues
+                dragging: false         // Keeps it fixed as a visual aid
+            }).setView([17.0, 79.0], 5);
+            
+            // Minimal, clean styled OpenStreetMap tiles
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap',
+                maxZoom: 10
+            }).addTo(map);
+
+            let currentMarker = null;
+
+            // Function to dynamically update map location
+            function updateMap(lat, lng, cityName) {
+                map.flyTo([lat, lng], 6, { animate: true, duration: 1.5 });
+                
+                if(currentMarker) map.removeLayer(currentMarker);
+                
+                // Custom pulsing red marker
+                currentMarker = L.circleMarker([lat, lng], {
+                    color: '#9B2C2C',
+                    fillColor: '#9B2C2C',
+                    fillOpacity: 0.8,
+                    radius: 8,
+                    weight: 2
+                }).addTo(map);
+
+                currentMarker.bindPopup(`<strong style="font-family:Inter; color:#1E293B;">${cityName}</strong>`).openPopup();
+            }
+
+            // --- 2. SMART FILTERING LOGIC ---
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    document.body.setAttribute('data-filter', btn.getAttribute('data-target'));
+                });
+            });
+
+            // --- 3. FLOWCHART ACCORDION LOGIC ---
+            const flowButtons = document.querySelectorAll('.flow-btn');
+            flowButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const wrapper = btn.nextElementSibling;
+                    const isActive = btn.classList.contains('active');
+                    if (isActive) {
+                        btn.classList.remove('active');
+                        wrapper.classList.remove('open');
+                    } else {
+                        btn.classList.add('active');
+                        wrapper.classList.add('open');
+                    }
+                });
+            });
+
+            // --- 4. PRECISION SCROLL OBSERVER ---
+            const timelineCards = document.querySelectorAll('.timeline-card');
+            const elevatorLinks = document.querySelectorAll('.elevator-link');
+
+            const observerOptions = {
+                root: null,
+                // Triggers when the element hits the middle 30% of the screen
+                rootMargin: '-30% 0px -50% 0px', 
+                threshold: 0
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // Fade in card (kept permanent once seen)
+                        entry.target.classList.add('visible');
+                        
+                        // Update Elevator Nav precisely
+                        const id = entry.target.getAttribute('id');
+                        elevatorLinks.forEach(link => {
+                            link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
+                        });
+
+                        // Update Map
+                        const lat = entry.target.getAttribute('data-lat');
+                        const lng = entry.target.getAttribute('data-lng');
+                        const city = entry.target.getAttribute('data-city');
+                        
+                        if (lat && lng && city) {
+                            updateMap(parseFloat(lat), parseFloat(lng), city);
+                        }
+                    }
+                });
+            }, observerOptions);
+
+            timelineCards.forEach(card => observer.observe(card));
+            
+            // Fail-safe to ensure top elements are visible immediately on load
+            setTimeout(() => {
+                timelineCards.forEach(card => card.classList.add('visible'));
+            }, 300);
+
+            // --- 5. MOBILE MAP TOGGLE (FAB) ---
+            const mobileMapBtn = document.getElementById('mobileMapBtn');
+            const mapSticky = document.querySelector('.map-sticky');
+            
+            mobileMapBtn.addEventListener('click', () => {
+                if (mapSticky.style.display === 'flex') {
+                    mapSticky.style.display = '';
+                    mapSticky.style.position = '';
+                    mapSticky.style.zIndex = '';
+                    mapSticky.style.height = '';
+                } else {
+                    mapSticky.style.display = 'flex';
+                    mapSticky.style.position = 'fixed';
+                    mapSticky.style.top = '10vh';
+                    mapSticky.style.left = '5vw';
+                    mapSticky.style.width = '90vw';
+                    mapSticky.style.height = '70vh';
+                    mapSticky.style.zIndex = '1000';
+                    mapSticky.style.boxShadow = '0 20px 40px rgba(0,0,0,0.5)';
+                    
+                    // Essential for Leaflet to render correctly when container changes size/visibility
+                    setTimeout(() => {
+                        map.invalidateSize();
+                    }, 100);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
